@@ -46,54 +46,81 @@
                 </div>
             </section>
 
-            <!-- 2. Área Exclusiva do Cliente (Aparece após login de cliente) -->
+            <!-- 2. Área Exclusiva do Cliente (Com Galeria do Supabase Storage) -->
             <section id="cliente-section" class="section-view" style="display: none;">
-                <div class="hero-banner" style="border-color: #10b981;">
+                <div class="hero-banner" style="border-color: #10b981; margin-bottom: 24px;">
                     <h2 id="cliente-welcome-title">Bem-vindo à Área VIP!</h2>
-                    <p>Seu acesso está ativo. Aproveite todos os benefícios exclusivos da Nicolly.</p>
-                    <button id="btn-sair-cliente" class="btn-danger" style="margin-top: 20px;">Sair da Conta</button>
+                    <p>Seu acesso está ativo. Aproveite todos os conteúdos exclusivos abaixo.</p>
+                    <button id="btn-sair-cliente" class="btn-danger" style="margin-top: 16px;">Sair da Conta</button>
+                </div>
+
+                <div id="galeria-vip-container">
+                    <!-- Fotos, vídeos e links exclusivos carregados do Supabase -->
                 </div>
             </section>
 
-            <!-- 3. Painel do Administrador Master (Aparece se for o Jefferson) -->
+            <!-- 3. Painel do Administrador Master (Com Upload Direto para Supabase Storage) -->
             <section id="admin-section" class="section-view" style="display: none;">
                 <div class="admin-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2>Painel do Administrador Master</h2>
                     <button id="btn-logout-admin" class="btn-danger">Sair</button>
                 </div>
-                <div class="admin-stats" id="admin-stats-container" style="background: #111827; padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
-                    <h3>Controle Geral via Supabase</h3>
-                    <p style="color: #9ca3af; margin-top: 10px;">Banco de dados conectado e pronto para gerenciar clientes e faturamento.</p>
+
+                <!-- Status Realtime -->
+                <div class="admin-stats" style="background: #111827; padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px;">
+                    <h3>Monitoramento ao Vivo (Supabase)</h3>
+                    <p id="contador-online-admin" style="color: #10b981; font-weight: 600; margin-top: 8px;">Conectando ao servidor em tempo real...</p>
+                </div>
+
+                <!-- Publicar Novo Conteúdo VIP -->
+                <div style="background: #111827; padding: 24px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                    <h3 style="margin-bottom: 15px;">📸 Publicar Foto ou Vídeo na Área VIP</h3>
+                    <form id="form-upload-vip">
+                        <div class="form-group">
+                            <label for="midia-titulo">Título da Postagem:</label>
+                            <input type="text" id="midia-titulo" required placeholder="Ex: Ensaio Exclusivo #01">
+                        </div>
+                        <div class="form-group">
+                            <label for="midia-descricao">Descrição (opcional):</label>
+                            <input type="text" id="midia-descricao" placeholder="Legenda para os assinantes VIP">
+                        </div>
+                        <div class="form-group">
+                            <label for="midia-arquivo">Escolher Foto ou Vídeo do Celular:</label>
+                            <input type="file" id="midia-arquivo" accept="image/*,video/*" required style="padding: 10px;">
+                        </div>
+                        <button type="submit" id="btn-enviar-midia" class="btn-primary" style="width: 100%; margin-top: 10px;">Publicar no Supabase Storage</button>
+                    </form>
                 </div>
             </section>
 
         </main>
 
-        <!-- Modal de Login Unificado -->
-        <div id="modal-login" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; z-index: 1000;">
-            <div style="background: #111827; padding: 30px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); width: 100%; max-width: 400px; position: relative;">
-                <h3 style="margin-bottom: 20px; color: #fff;">Acessar Plataforma</h3>
+        <!-- Modal de Login / Cadastro Unificado com Supabase Auth -->
+        <div id="modal-login" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; z-index: 1000; padding: 16px;">
+            <div style="background: #111827; padding: 28px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); width: 100%; max-width: 400px; position: relative;">
+                <h3 id="modal-auth-titulo" style="margin-bottom: 18px; color: #fff;">Acessar Plataforma</h3>
                 <form id="form-login-unico">
                     <div class="form-group">
-                        <label for="login-email">Seu E-mail cadastrado:</label>
+                        <label for="login-email">Seu E-mail:</label>
                         <input type="email" id="login-email" required placeholder="seu@email.com" style="width: 100%; padding: 12px; background: #1f2937; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; margin-top: 5px;">
                     </div>
-                    <button type="submit" class="btn-primary" style="width: 100%; margin-top: 15px;">Entrar na Conta</button>
+                    <div class="form-group" style="margin-top: 12px;">
+                        <label for="login-senha">Sua Senha:</label>
+                        <input type="password" id="login-senha" required minlength="6" placeholder="Mínimo 6 caracteres" style="width: 100%; padding: 12px; background: #1f2937; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; margin-top: 5px;">
+                    </div>
+                    <button type="submit" id="btn-submit-auth" class="btn-primary" style="width: 100%; margin-top: 16px;">Entrar na Conta</button>
+                    <button type="button" id="btn-alternar-modo-auth" style="width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #e5e7eb; padding: 10px; border-radius: 8px; margin-top: 10px; cursor: pointer; font-size: 0.85rem;">Não tem conta? Criar conta agora</button>
                     <button type="button" id="btn-fechar-modal" style="width: 100%; background: transparent; border: none; color: #9ca3af; margin-top: 10px; cursor: pointer;">Cancelar</button>
                 </form>
             </div>
         </div>
 
-        <!-- ========================================================= -->
-        <!-- POP-UP MODERNO DA ASSISTENTE VIRTUAL (NICOLLY AI)          -->
-        <!-- ========================================================= -->
+        <!-- Pop-up Moderno da Assistente Virtual (Nicolly AI) -->
         <button id="btn-abrir-chat-ia" style="position: fixed; bottom: 20px; right: 20px; background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; border: none; padding: 14px 20px; border-radius: 50px; font-weight: 700; box-shadow: 0 8px 25px rgba(236, 72, 153, 0.45); cursor: pointer; z-index: 998; display: flex; align-items: center; gap: 8px; font-size: 0.95rem;">
             <span>✨ Suporte AI</span>
         </button>
 
         <div id="chat-ia-popup" style="display: none; position: fixed; bottom: 85px; right: 20px; width: 350px; max-width: calc(100vw - 40px); height: 470px; background: #111827; border: 1px solid rgba(236, 72, 153, 0.35); border-radius: 18px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.85); z-index: 999; flex-direction: column; overflow: hidden;">
-            
-            <!-- Cabeçalho do Chat -->
             <div style="background: linear-gradient(135deg, #ec4899, #8b5cf6); padding: 14px 18px; display: flex; justify-content: space-between; align-items: center;">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <div style="width: 36px; height: 36px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">🤖</div>
@@ -106,24 +133,17 @@
                 </div>
                 <button id="btn-fechar-chat-ia" style="background: rgba(0,0,0,0.2); border: none; color: #fff; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-weight: bold;">✕</button>
             </div>
-
-            <!-- Área das Mensagens -->
             <div id="chat-ia-mensagens" style="flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: #0b0f19;">
-                <!-- Mensagem de Boas-vindas Automática -->
                 <div style="background: #1f2937; color: #f3f4f6; padding: 12px 14px; border-radius: 14px 14px 14px 4px; font-size: 0.88rem; line-height: 1.45; max-width: 85%; align-self: flex-start; border: 1px solid rgba(255,255,255,0.06);">
                     Olá! 👋 Sou a <strong>Nicolly AI</strong>, assistente inteligente oficial da plataforma.<br><br>
                     Posso te ajudar com informações sobre nossos <strong>planos VIP</strong>, <strong>valores</strong>, <strong>pagamento Pix</strong> ou <strong>cupons de desconto</strong>. Como posso te ajudar hoje?
                 </div>
             </div>
-
-            <!-- Sugestões Rápidas -->
             <div style="padding: 8px 12px; background: #111827; display: flex; gap: 6px; overflow-x: auto; border-top: 1px solid rgba(255,255,255,0.05);">
                 <button type="button" class="chip-ia" data-msg="Quais são os planos?" style="background: #1f2937; color: #e5e7eb; border: 1px solid rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 12px; font-size: 0.75rem; white-space: nowrap; cursor: pointer;">💎 Ver Planos</button>
                 <button type="button" class="chip-ia" data-msg="Como funciona o Pix?" style="background: #1f2937; color: #e5e7eb; border: 1px solid rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 12px; font-size: 0.75rem; white-space: nowrap; cursor: pointer;">⚡ Pagamento Pix</button>
                 <button type="button" class="chip-ia" data-msg="Tem cupom de desconto?" style="background: #1f2937; color: #e5e7eb; border: 1px solid rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 12px; font-size: 0.75rem; white-space: nowrap; cursor: pointer;">🎟️ Cupom</button>
             </div>
-
-            <!-- Campo de Digitação -->
             <form id="form-chat-ia" style="padding: 10px; background: #111827; border-top: 1px solid rgba(255,255,255,0.08); display: flex; gap: 8px;">
                 <input type="text" id="input-chat-ia" placeholder="Digite sua dúvida aqui..." autocomplete="off" style="flex: 1; padding: 10px 14px; background: #1f2937; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; color: #fff; font-size: 0.88rem; outline: none;">
                 <button type="submit" style="background: linear-gradient(135deg, #ec4899, #8b5cf6); color: #fff; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem;">➤</button>
