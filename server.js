@@ -6,7 +6,7 @@ const { MercadoPagoConfig } = require('mercadopago');
 const app = express();
 app.use(express.json());
 
-// Configura o Express para servir todos os arquivos estáticos (HTML, CSS, JS) da raiz do projeto
+// Servir arquivos estáticos do front-end
 app.use(express.static(path.join(__dirname)));
 
 // Credenciais oficiais
@@ -14,26 +14,45 @@ const SUPABASE_URL = 'https://wodlhlwezckslounvmlx.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_gTnYby203YRRUb0DeNqcKg_Nqe0M9Yr';
 const MERCADO_PAGO_TOKEN = 'APP_USR-4480456642803254-111801-be3d1e41d0eb72ba4a94bcd81ee19496-16180848';
 
-console.log("Iniciando servidor para o VIP da Nicolly...");
+console.log("Iniciando servidor para o VIP da Nicolly com painel Admin...");
 
-// Inicialização do Mercado Pago
 const client = new MercadoPagoConfig({ accessToken: MERCADO_PAGO_TOKEN });
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const PORT = process.env.PORT || 10000;
 
-// Rota de status/healthcheck do servidor
+// Lista de administradores autorizados e suas configurações iniciais
+const ADMINS_AUTORIZADOS = [
+  { email: 'jeffersonhelanbittencourt@gmail.com', senhaPadrao: '0411' }, // Substitua pelo seu e-mail exato se necessário
+  { email: 'nicolly@vip.com', senhaPadrao: '0411' } // Exemplo para a Nicolly
+];
+
+// Rota para verificar se o usuário é Administrador
+app.get('/papel', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ success: false, message: 'Não autorizado' });
+
+  try {
+    const token = authHeader.split(' ')[1];
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    
+    if (error || !user) return res.status(401).json({ success: false, message: 'Sessão inválida' });
+
+    // Verifica se o e-mail do usuário está na lista de administradores
+    const isAdmin = ADMINS_AUTORIZADOS.some(adm => adm.email.toLowerCase() === user.email.toLowerCase());
+
+    res.json({ success: true, data: { admin: isAdmin } });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Erro no servidor' });
+  }
+});
+
+// Rota de status do servidor
 app.get('/health', (req, res) => {
   res.json({ status: 'online', app: 'VIP da Nicolly' });
 });
 
-// Rotas de API do seu sistema (exemplo de verificação de status)
-app.get('/verificar-status', async (req, res) => {
-  const email = req.query.email;
-  // Aqui você pode consultar o Supabase via fetch nativo se precisar
-  res.json({ success: true, data: { email: email, status: 'pendente', plano: '' } });
-});
-
-// Qualquer outra rota exibe o seu arquivo index.html principal do site
+// Entrega o front-end em qualquer rota
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
