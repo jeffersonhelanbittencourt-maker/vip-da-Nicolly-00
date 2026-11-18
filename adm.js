@@ -4,12 +4,18 @@
 const express = require('express');
 const router = express.Router();
 
-// Lista de usuários autorizados (Apenas o seu e-mail e senha de 6 dígitos)
+// Lista de usuários autorizados com privilégio explícito de Administrador
 const USUARIOS_ADM = [
-  { login: 'jeffersonhelanbittencourt@gmail.com', senha: '041160', nome: 'Jefferson', admin: true }
+  { 
+    login: 'jeffersonhelanbittencourt@gmail.com', 
+    senha: '041160', 
+    nome: 'Jefferson', 
+    admin: true,
+    role: 'admin'
+  }
 ];
 
-// Rota de login do admin que conversa com o servidor
+// Rota de login do admin que conversa com o servidor e libera o painel de adm
 router.post('/login-admin', (req, res) => {
   const { login, senha } = req.body;
   const usuarioDigitado = String(login || '').trim().toLowerCase();
@@ -18,18 +24,27 @@ router.post('/login-admin', (req, res) => {
   const encontrado = USUARIOS_ADM.find(u => u.login === usuarioDigitado && u.senha === senhaDigitada);
 
   if (encontrado) {
-    res.json({ success: true, data: encontrado });
+    res.json({ 
+      success: true, 
+      data: {
+        login: encontrado.login,
+        nome: encontrado.nome,
+        admin: true,
+        role: 'admin'
+      } 
+    });
   } else {
     res.status(401).json({ success: false, message: 'Usuário ou senha incorretos' });
   }
 });
 
-// Rota de papel do usuário
+// Rota de papel do usuário garantindo status de administrador
 router.get('/papel', (req, res) => {
   res.json({ 
     success: true, 
     data: { 
       admin: true, 
+      role: 'admin',
       nome: 'Jefferson' 
     } 
   });
