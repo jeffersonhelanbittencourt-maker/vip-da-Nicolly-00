@@ -9,11 +9,11 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { background: #0b0f19; color: #f3f4f6; min-height: 100vh; display: flex; flex-direction: column; }
         header { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; background: #111827; border-bottom: 1px solid rgba(255,255,255,0.08); }
-        main { flex: 1; max-width: 1100px; width: 100%; margin: 0 auto; padding: 30px 20px; }
+        main { flex: 1; max-width: 1200px; width: 100%; margin: 0 auto; padding: 30px 20px; }
         .btn-primary { background: #ec4899; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: background 0.2s; width: 100%; }
         .btn-primary:hover { background: #db2777; }
         .plano-card { background: #111827; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 24px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; }
-        input, textarea { width: 100%; padding: 10px; background: #1f2937; border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 6px; font-size: 0.9rem; }
+        input, select, textarea { width: 100%; padding: 10px; background: #1f2937; border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 6px; font-size: 0.9rem; }
     </style>
 </head>
 <body>
@@ -53,38 +53,54 @@
             <div id="galeria-vip-container" style="margin-top: 25px;"></div>
         </section>
 
-        <!-- 3. SEÇÃO PAINEL ADMIN MASTER -->
+        <!-- 3. SEÇÃO PAINEL ADMIN MASTER (Com Funções Avançadas) -->
         <section id="admin-section" style="display: none;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background: #111827; padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
                 <h2 style="font-size: 1.6rem; color: #10b981; margin: 0;">Painel Administrativo Master</h2>
                 <button id="btn-logout-admin" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">Sair do Painel</button>
             </div>
 
+            <!-- Estatísticas Avançadas -->
             <div id="admin-stats-container" style="margin-bottom: 25px;"></div>
 
-            <div style="background: #111827; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 25px;">
-                <h3 style="color: #fff; font-size: 1.1rem; margin-bottom: 15px;">Publicar Novo Conteúdo VIP</h3>
-                <form id="form-upload-vip" style="display: flex; flex-direction: column; gap: 14px;">
-                    <div>
-                        <label style="display: block; font-size: 0.8rem; color: #9ca3af; margin-bottom: 5px;">Título da Publicação</label>
-                        <input type="text" id="midia-titulo" required placeholder="Ex: Ensaio Exclusivo #01">
-                    </div>
-                    <div>
-                        <label style="display: block; font-size: 0.8rem; color: #9ca3af; margin-bottom: 5px;">Descrição (Opcional)</label>
-                        <textarea id="midia-descricao" placeholder="Detalhes sobre o conteúdo..." style="height: 75px; resize: vertical;"></textarea>
-                    </div>
-                    <div>
-                        <label style="display: block; font-size: 0.8rem; color: #9ca3af; margin-bottom: 5px;">Arquivo de Mídia (Foto ou Vídeo)</label>
-                        <input type="file" id="midia-arquivo" accept="image/*,video/*" required style="color: #9ca3af; font-size: 0.85rem;">
-                    </div>
-                    <button type="submit" id="btn-enviar-midia" class="btn-primary" style="background: #10b981; margin-top: 5px;">Publicar no Supabase Storage</button>
-                </form>
+            <!-- Grid de Gerenciamento Avançado Admin -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+                
+                <!-- A. Publicar Mídia -->
+                <div style="background: #111827; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px;">
+                    <h3 style="color: #fff; font-size: 1.1rem; margin-bottom: 12px;">📸 Publicar Conteúdo VIP</h3>
+                    <form id="form-upload-vip" style="display: flex; flex-direction: column; gap: 12px;">
+                        <input type="text" id="midia-titulo" required placeholder="Título da Publicação">
+                        <textarea id="midia-descricao" placeholder="Descrição opcional..." style="height: 60px; resize: vertical;"></textarea>
+                        <input type="file" id="midia-arquivo" accept="image/*,video/*" required style="font-size: 0.85rem; color: #9ca3af;">
+                        <button type="submit" id="btn-enviar-midia" class="btn-primary" style="background: #10b981;">Publicar no Storage</button>
+                    </form>
+                </div>
+
+                <!-- B. Cadastro e Gestão de DMs -->
+                <div style="background: #111827; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px;">
+                    <h3 style="color: #ec4899; font-size: 1.1rem; margin-bottom: 12px;">👥 Cadastrar Nova DM</h3>
+                    <form id="form-cadastrar-dm" style="display: flex; flex-direction: column; gap: 12px;">
+                        <input type="text" id="dm-nome" required placeholder="Nome da DM">
+                        <input type="email" id="dm-email" required placeholder="E-mail de acesso">
+                        <input type="tel" id="dm-whatsapp" placeholder="WhatsApp (41) 99999-9999">
+                        <div style="font-size: 0.8rem; color: #10b981; background: #1f2937; padding: 8px; border-radius: 6px;">Senha Padrão: <strong>04/11</strong></div>
+                        <button type="submit" id="btn-salvar-dm" class="btn-primary" style="background: #ec4899;">Salvar DM no Banco</button>
+                    </form>
+                </div>
+
+            </div>
+
+            <!-- Listagem de Clientes e DMs Cadastradas (Gerenciamento Completo) -->
+            <div style="background: #111827; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; margin-top: 20px;">
+                <h3 style="color: #38bdf8; font-size: 1.1rem; margin-bottom: 12px;">📋 Lista Geral de Clientes e DMs Cadastradas</h3>
+                <div id="admin-tabela-usuarios" style="overflow-x: auto;"></div>
             </div>
         </section>
 
     </main>
 
-    <!-- MODAL DE LOGIN / CADASTRO / ESQUECI A SENHA -->
+    <!-- MODAL DE LOGIN / CADASTRO -->
     <div id="modal-login" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); justify-content: center; align-items: center; z-index: 1000; padding: 15px;">
         <div style="background: #111827; border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 25px; width: 100%; max-width: 380px; position: relative;">
             <button id="btn-fechar-modal" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: #9ca3af; font-size: 1.1rem; cursor: pointer;">✕</button>
@@ -101,7 +117,6 @@
                     <input type="password" id="login-senha" required placeholder="••••••••">
                 </div>
                 
-                <!-- CAMPO DE TELEFONE / WHATSAPP (Aparece apenas no cadastro) -->
                 <div id="grupo-telefone" style="display: none;">
                     <label style="display: block; font-size: 0.8rem; color: #9ca3af; margin-bottom: 5px;">WhatsApp / Celular (com DDD)</label>
                     <input type="tel" id="login-telefone" placeholder="(41) 99999-9999">
@@ -114,6 +129,18 @@
                 <button type="button" id="btn-alternar-modo-auth" style="background: none; border: none; color: #38bdf8; cursor: pointer;">Criar conta agora</button>
                 <button type="button" id="btn-esqueci-senha" style="background: none; border: none; color: #9ca3af; cursor: pointer;">Esqueci a senha</button>
             </div>
+        </div>
+    </div>
+
+    <!-- POP-UP AUTOMÁTICO DE NOVA SENHA (Redefinição via Link do Supabase) -->
+    <div id="modal-nova-senha" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 2000; padding: 15px;">
+        <div style="background: #111827; border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 14px; padding: 25px; width: 100%; max-width: 380px; text-align: center;">
+            <h3 style="color: #10b981; font-size: 1.3rem; margin-bottom: 10px;">🔐 Criar Nova Senha</h3>
+            <p style="color: #9ca3af; font-size: 0.85rem; margin-bottom: 20px;">Digite sua nova senha abaixo para atualizar seu acesso.</p>
+            <form id="form-nova-senha" style="display: flex; flex-direction: column; gap: 14px;">
+                <input type="password" id="input-nova-senha" required placeholder="Digite a nova senha" style="text-align: center;">
+                <button type="submit" class="btn-primary" style="background: #10b981;">Atualizar Senha e Entrar</button>
+            </form>
         </div>
     </div>
 
