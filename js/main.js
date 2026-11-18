@@ -12,7 +12,7 @@ import { SupabaseAfiliados } from './afiliados.js';
 let modoCadastro = false;
 
 document.addEventListener("DOMContentLoaded", async () => {
-    // 0. Verifica se o usuário acessou por link de Afiliado
+    // 0. Verifica e salva o código de Afiliado se houver ?ref= na URL
     SupabaseAfiliados.verificarIndicaçãoURL();
 
     const btnAbrirLogin = document.getElementById("btn-abrir-login");
@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             .eq('email', email)
             .maybeSingle();
 
-        // A. Painel Admin Master (Jefferson / Admins autorizados)
+        // A. Painel Admin Master
         if (email === ADMIN_EMAIL_MASTER.toLowerCase() || (adminData && adminData.ativo)) {
             if (vitrineSection) vitrineSection.style.display = "none";
             if (clienteSection) clienteSection.style.display = "none";
@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
 
-        // B. Área do Cliente VIP
+        // B. Área do Cliente VIP (Inclui Galeria, Notificações e Painel de Afiliado)
         if (vitrineSection) vitrineSection.style.display = "none";
         if (adminSection) adminSection.style.display = "none";
         if (clienteSection) clienteSection.style.display = "block";
@@ -71,6 +71,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         await SupabaseStorageVIP.renderizarAreaCliente("galeria-vip-container", email);
         await carregarNotificacoesCliente(email, "cliente-notificacoes-container");
+        await SupabaseAfiliados.renderizarPainelAfiliado(email, "cliente-afiliados-container");
     }
 
     // =====================================================================
@@ -283,7 +284,6 @@ async function carregarPlanosDoSupabase() {
         const txtPreco = document.getElementById(`preco-plano-${plano.id}`);
         const btnAssinar = document.getElementById(`btn-plano-${plano.id}`);
 
-        // Ação de aplicar cupom de desconto
         if (btnAplicar) {
             btnAplicar.addEventListener("click", async () => {
                 const codigo = inputCupom.value;
@@ -293,7 +293,6 @@ async function carregarPlanosDoSupabase() {
             });
         }
 
-        // Ação de assinar via Mercado Pago (com o preço atualizado com desconto)
         if (btnAssinar) {
             btnAssinar.addEventListener("click", async () => {
                 const { data: { session } } = await supabase.auth.getSession();
