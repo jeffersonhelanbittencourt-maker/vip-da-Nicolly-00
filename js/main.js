@@ -1,41 +1,35 @@
-// Função para carregar as estatísticas e faturamento direto das funções RPC do Supabase
-async function carregarDadosPainelAdmin() {
-    const containerStats = document.getElementById("admin-stats-container");
-    if (!containerStats) return;
+// Função para validar o cupom de desconto direto no banco Supabase
+async function aplicarCupomDesconto(codigoCupom, valorOriginal, elementoPrecoId) {
+    if (!codigoCupom) return alert("Digite um código de cupom.");
 
     try {
-        // 1. Puxa as estatísticas instantâneas criadas no Supabase
-        const { data: stats, error: errStats } = await supabase.rpc('obter_estatisticas_vip');
-        
-        // 2. Puxa o resumo financeiro detalhado da View do Supabase
-        const { data: financeiro, error: errFin } = await supabase
-            .from('vw_resumo_financeiro')
-            .select('*')
-            .single();
+        // Chama a função RPC 'validar_cupom_vip' armazenada no Supabase
+        const { data, error } = await supabase.rpc('validar_cupom_vip', {
+            p_codigo: codigoCupom,
+            p_valor_original: valorOriginal
+        });
 
-        if (errStats || errFin) throw new Error('Erro ao buscar dados do Supabase.');
+        if (error) throw error;
 
-        containerStats.innerHTML = `
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 10px;">
-                <div style="background: #1f2937; padding: 15px; border-radius: 8px;">
-                    <p style="color: #9ca3af; font-size: 0.8rem;">Faturamento Total</p>
-                    <h3 style="color: #10b981; font-size: 1.4rem; margin-top: 5px;">R$ ${Number(financeiro?.faturamento_total || 0).toFixed(2)}</h3>
-                </div>
-                <div style="background: #1f2937; padding: 15px; border-radius: 8px;">
-                    <p style="color: #9ca3af; font-size: 0.8rem;">Faturamento Hoje</p>
-                    <h3 style="color: #38bdf8; font-size: 1.4rem; margin-top: 5px;">R$ ${Number(financeiro?.faturamento_hoje || 0).toFixed(2)}</h3>
-                </div>
-                <div style="background: #1f2937; padding: 15px; border-radius: 8px;">
-                    <p style="color: #9ca3af; font-size: 0.8rem;">Clientes Ativos</p>
-                    <h3 style="color: #ec4899; font-size: 1.4rem; margin-top: 5px;">${stats?.clientes_ativos || 0}</h3>
-                </div>
-                <div style="background: #1f2937; padding: 15px; border-radius: 8px;">
-                    <p style="color: #9ca3af; font-size: 0.8rem;">Conteúdos Publicados</p>
-                    <h3 style="color: #a855f7; font-size: 1.4rem; margin-top: 5px;">${stats?.conteudos_publicados || 0}</h3>
-                </div>
-            </div>
-        `;
+        if (data && data.valido) {
+            alert(`✅ Cupom aplicado com sucesso! Desconto de ${data.desconto_percentual}%.`);
+            
+            // Atualiza o preço exibido na tela para o cliente
+            const elementoPreco = document.getElementById(elementoPrecoId);
+            if (elementoPreco) {
+                elementoPreco.innerHTML = `
+                    <span style="text-decoration: line-through; color: #9ca3af; font-size: 1rem;">R$ ${valorOriginal.toFixed(2)}</span>
+                    <span style="color: #10b981; margin-left: 8px;">R$ ${data.valor_final.toFixed(2)}</span>
+                `;
+            }
+            return data.valor_final;
+        } else {
+            alert(`❌ ${data.mensagem || 'Cupom inválido ou expirado.'}`);
+            return valorOriginal;
+        }
     } catch (err) {
-        console.error("Erro ao carregar painel admin:", err);
+        console.error("Erro ao validar cupom:", err);
+        alert("Erro ao validar o cupom no servidor.");
+        return valorOriginal;
     }
 }
