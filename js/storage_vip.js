@@ -1,34 +1,20 @@
-// Função para adicionar ou remover um conteúdo dos favoritos do usuário
-async function alternarFavoritoVIP(conteudoId, emailUsuario) {
-    if (!emailUsuario) {
-        alert("Você precisa estar logado para favoritar conteúdos.");
-        return;
-    }
+// Função para enviar um comentário em um conteúdo VIP
+async function enviarComentarioVIP(conteudoId, emailUsuario, textoComentario) {
+    if (!emailUsuario || !textoComentario) return;
 
     try {
-        // Verifica se já está nos favoritos
-        const { data: jaFavorito } = await supabase
-            .from('favoritos_vip')
-            .select('id')
-            .eq('usuario_email', emailUsuario.toLowerCase())
-            .eq('conteudo_id', conteudoId)
-            .maybeSingle();
+        const { error } = await supabase
+            .from('comentarios_vip')
+            .insert([{
+                conteudo_id: conteudoId,
+                usuario_email: emailUsuario.toLowerCase(),
+                comentario: textoComentario.trim()
+            }]);
 
-        if (jaFavorito) {
-            // Se já for favorito, remove
-            await supabase
-                .from('favoritos_vip')
-                .delete()
-                .eq('id', jaFavorito.id);
-            alert("Removido dos favoritos.");
-        } else {
-            // Se não for, adiciona
-            await supabase
-                .from('favoritos_vip')
-                .insert([{ usuario_email: emailUsuario.toLowerCase(), conteudo_id: conteudoId }]);
-            alert("Adicionado aos favoritos!");
-        }
+        if (error) throw error;
+        alert("Comentário enviado com sucesso!");
     } catch (err) {
-        console.error("Erro ao gerenciar favoritos:", err);
+        console.error("Erro ao enviar comentário:", err);
+        alert("Erro ao enviar comentário.");
     }
 }
