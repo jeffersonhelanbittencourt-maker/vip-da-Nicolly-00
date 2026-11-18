@@ -1,7 +1,6 @@
 // =====================================================================
-// VIP DA NICOLLY - js/main.js (Sistema Unificado e Completo)
+// VIP DA NICOLLY - js/main.js (Controlador Principal Completo)
 // =====================================================================
-
 import { supabase, ADMIN_EMAIL_MASTER } from './config.js';
 import { SupabaseAI } from './ai_assistant.js';
 import { SupabaseRealtime } from './realtime.js';
@@ -21,7 +20,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const adminSection = document.getElementById("admin-section");
     const badge = document.getElementById("user-status-badge");
 
-    // Função para direcionar o usuário logado para a tela certa
+    // Gerenciador de Sessão e Rotas Inteligentes
     async function aplicarSessaoUsuario(user) {
         if (!user || !user.email) return;
         const email = user.email.toLowerCase();
@@ -34,26 +33,29 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // 1. Painel Admin Master
         if (email === ADMIN_EMAIL_MASTER.toLowerCase() || (adminData && adminData.ativo)) {
-            vitrineSection.style.display = "none";
-            clienteSection.style.display = "none";
-            adminSection.style.display = "block";
-            badge.textContent = "Admin Master";
-            badge.style.background = "#10b981";
-            badge.style.color = "#fff";
+            if (vitrineSection) vitrineSection.style.display = "none";
+            if (clienteSection) clienteSection.style.display = "none";
+            if (adminSection) adminSection.style.display = "block";
+            if (badge) {
+                badge.textContent = "Admin Master";
+                badge.style.background = "#10b981";
+                badge.style.color = "#fff";
+            }
             if (btnAbrirLogin) btnAbrirLogin.style.display = "none";
             
-            // Carrega estatísticas financeiras instantâneas do banco
             await carregarDadosPainelAdmin();
             return;
         }
 
-        // 2. Área do Cliente
-        vitrineSection.style.display = "none";
-        adminSection.style.display = "none";
-        clienteSection.style.display = "block";
-        badge.textContent = "Membro VIP";
-        badge.style.background = "#ec4899";
-        badge.style.color = "#fff";
+        // 2. Área do Cliente VIP
+        if (vitrineSection) vitrineSection.style.display = "none";
+        if (adminSection) adminSection.style.display = "none";
+        if (clienteSection) clienteSection.style.display = "block";
+        if (badge) {
+            badge.textContent = "Membro VIP";
+            badge.style.background = "#ec4899";
+            badge.style.color = "#fff";
+        }
         if (btnAbrirLogin) btnAbrirLogin.style.display = "none";
 
         const tituloCliente = document.getElementById("cliente-welcome-title");
@@ -63,7 +65,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         await carregarNotificacoesCliente(email, "cliente-notificacoes-container");
     }
 
-    // Carregar Estatísticas no Painel Admin
+    // Carregar Estatísticas e Dados Financeiros do Admin
     async function carregarDadosPainelAdmin() {
         const containerStats = document.getElementById("admin-stats-container");
         if (!containerStats) return;
@@ -93,7 +95,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 </div>
             `;
         } catch (err) {
-            console.error("Erro ao carregar estatísticas:", err);
+            console.error("Erro ao carregar estatísticas do admin:", err);
         }
     }
 
@@ -108,7 +110,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             .eq('email_destinatario', emailCliente.toLowerCase())
             .order('criado_em', { ascending: false });
 
-        if (!notificacoes || notificacoes.length === 0) return;
+        if (!notificacoes || notificacoes.length === 0) {
+            container.innerHTML = `<p style="color: #9ca3af; font-size: 0.85rem;">Nenhuma notificação nova.</p>`;
+            return;
+        }
 
         container.innerHTML = notificacoes.map(item => `
             <div style="background: #1f2937; border-left: 4px solid #ec4899; padding: 10px 14px; border-radius: 8px; margin-bottom: 8px;">
@@ -118,13 +123,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         `).join('');
     }
 
-    // Verificar sessão ao abrir
+    // Checar sessão ativa inicial
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) await aplicarSessaoUsuario(session.user);
 
-    // Eventos de Modal
-    if (btnAbrirLogin) btnAbrirLogin.addEventListener("click", () => modalLogin.style.display = "flex");
-    if (btnFecharModal) btnFecharModal.addEventListener("click", () => modalLogin.style.display = "none");
+    // Eventos do Modal de Autenticação
+    if (btnAbrirLogin && modalLogin) {
+        btnAbrirLogin.addEventListener("click", () => modalLogin.style.display = "flex");
+    }
+    if (btnFecharModal && modalLogin) {
+        btnFecharModal.addEventListener("click", () => modalLogin.style.display = "none");
+    }
 
     if (btnAlternarModo) {
         btnAlternarModo.addEventListener("click", () => {
@@ -135,7 +144,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // Autenticação Supabase Auth
+    // Processamento do Formulário de Login / Cadastro
     if (formLoginUnico) {
         formLoginUnico.addEventListener("submit", async (e) => {
             e.preventDefault();
@@ -146,19 +155,19 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const { data, error } = await supabase.auth.signUp({ email, password });
                 if (error) return alert("Erro ao criar conta: " + error.message);
                 await supabase.from('clientes_vip').upsert({ email, status: 'aprovado' }, { onConflict: 'email' });
-                modalLogin.style.display = "none";
+                if (modalLogin) modalLogin.style.display = "none";
                 alert("Conta criada com sucesso!");
                 if (data.user) await aplicarSessaoUsuario(data.user);
             } else {
                 const { data, error } = await supabase.auth.signInWithPassword({ email, password });
                 if (error) return alert("E-mail ou senha incorretos.");
-                modalLogin.style.display = "none";
+                if (modalLogin) modalLogin.style.display = "none";
                 if (data.user) await aplicarSessaoUsuario(data.user);
             }
         });
     }
 
-    // Upload de Mídia Admin
+    // Processamento de Upload de Mídia pelo Admin
     const formUpload = document.getElementById("form-upload-vip");
     if (formUpload) {
         formUpload.addEventListener("submit", async (e) => {
@@ -169,8 +178,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             const arquivo = document.getElementById("midia-arquivo").files[0];
 
             try {
-                btnEnviar.disabled = true;
-                btnEnviar.textContent = "Enviando...";
+                if (btnEnviar) {
+                    btnEnviar.disabled = true;
+                    btnEnviar.textContent = "Enviando...";
+                }
                 await SupabaseStorageVIP.publicarConteudo(arquivo, titulo, descricao);
                 alert("✅ Conteúdo publicado com sucesso!");
                 formUpload.reset();
@@ -178,22 +189,26 @@ document.addEventListener("DOMContentLoaded", async () => {
             } catch (err) {
                 alert("Erro ao publicar: " + err.message);
             } finally {
-                btnEnviar.disabled = false;
-                btnEnviar.textContent = "Publicar no Supabase Storage";
+                if (btnEnviar) {
+                    btnEnviar.disabled = false;
+                    btnEnviar.textContent = "Publicar no Supabase Storage";
+                }
             }
         });
     }
 
-    // Logout
+    // Ação de Logout Geral
     const sairGeral = async () => {
         await supabase.auth.signOut();
-        adminSection.style.display = "none";
-        clienteSection.style.display = "none";
-        vitrineSection.style.display = "block";
+        if (adminSection) adminSection.style.display = "none";
+        if (clienteSection) clienteSection.style.display = "none";
+        if (vitrineSection) vitrineSection.style.display = "block";
         if (btnAbrirLogin) btnAbrirLogin.style.display = "inline-block";
-        badge.textContent = "Visitante";
-        badge.style.background = "rgba(255, 255, 255, 0.1)";
-        badge.style.color = "#9ca3af";
+        if (badge) {
+            badge.textContent = "Visitante";
+            badge.style.background = "rgba(255, 255, 255, 0.1)";
+            badge.style.color = "#9ca3af";
+        }
     };
 
     const btnLogoutAdmin = document.getElementById("btn-logout-admin");
@@ -201,13 +216,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (btnLogoutAdmin) btnLogoutAdmin.addEventListener("click", sairGeral);
     if (btnSairCliente) btnSairCliente.addEventListener("click", sairGeral);
 
-    // Inicializadores globais
+    // Inicialização de módulos globais
     carregarPlanosDoSupabase();
     SupabaseAI.iniciarChatUI();
     SupabaseRealtime.iniciar(
         () => carregarPlanosDoSupabase(),
         (pagamento) => {
-            if (adminSection.style.display === "block") {
+            if (adminSection && adminSection.style.display === "block") {
                 alert(`💰 PIX APROVADO AO VIVO!\nCliente: ${pagamento.email}\nValor: R$ ${Number(pagamento.valor).toFixed(2)}`);
                 carregarDadosPainelAdmin();
             }
@@ -215,6 +230,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
 });
 
+// Função para renderizar os planos na vitrine pública
 async function carregarPlanosDoSupabase() {
     const container = document.getElementById("planos-container");
     if (!container) return;
@@ -223,13 +239,13 @@ async function carregarPlanosDoSupabase() {
     if (!planos) return;
 
     container.innerHTML = planos.map(plano => `
-        <div class="plano-card">
+        <div class="plano-card" style="background: #111827; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 24px; text-align: center;">
             <div>
-                <h3>${plano.nome}</h3>
-                <p style="color: #9ca3af; margin: 10px 0; font-size: 0.95rem;">${plano.descricao || ''}</p>
-                <p style="font-size: 1.5rem; font-weight: 700; color: #ec4899; margin: 15px 0;">R$ ${Number(plano.valor).toFixed(2)}</p>
+                <h3 style="color: #fff; font-size: 1.25rem;">${plano.nome}</h3>
+                <p style="color: #9ca3af; margin: 10px 0; font-size: 0.9rem;">${plano.descricao || ''}</p>
+                <p style="font-size: 1.6rem; font-weight: 700; color: #ec4899; margin: 15px 0;">R$ ${Number(plano.valor).toFixed(2)}</p>
             </div>
-            <button class="btn-primary" onclick="alert('Redirecionando para o Pix do plano ${plano.nome}...')">Assinar Plano</button>
+            <button class="btn-primary" onclick="alert('Redirecionando para pagamento Pix do plano ${plano.nome}...')">Assinar Agora</button>
         </div>
     `).join('');
 }
