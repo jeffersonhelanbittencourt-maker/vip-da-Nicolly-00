@@ -7,10 +7,14 @@ import { SupabaseRealtime } from './realtime.js';
 import { SupabaseStorageVIP } from './storage_vip.js';
 import { MercadoPagoVIP } from './pagamentos.js';
 import { SupabaseCupons } from './cupons.js';
+import { SupabaseAfiliados } from './afiliados.js';
 
 let modoCadastro = false;
 
 document.addEventListener("DOMContentLoaded", async () => {
+    // 0. Verifica se o usuário acessou por link de Afiliado
+    SupabaseAfiliados.verificarIndicaçãoURL();
+
     const btnAbrirLogin = document.getElementById("btn-abrir-login");
     const modalLogin = document.getElementById("modal-login");
     const btnFecharModal = document.getElementById("btn-fechar-modal");
