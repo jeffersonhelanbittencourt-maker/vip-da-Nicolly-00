@@ -1,37 +1,34 @@
-// Função para curtir ou descurtir conteúdos na Área VIP usando o Supabase
-async function curtirConteudoVIP(conteudoId, emailUsuario, containerId) {
+// Função para adicionar ou remover um conteúdo dos favoritos do usuário
+async function alternarFavoritoVIP(conteudoId, emailUsuario) {
     if (!emailUsuario) {
-        alert("Você precisa estar logado para curtir um conteúdo.");
+        alert("Você precisa estar logado para favoritar conteúdos.");
         return;
     }
 
     try {
-        // Verifica se o usuário já curtiu este conteúdo
-        const { data: jaCurtiu } = await supabase
-            .from('curtidas_vip')
+        // Verifica se já está nos favoritos
+        const { data: jaFavorito } = await supabase
+            .from('favoritos_vip')
             .select('id')
+            .eq('usuario_email', emailUsuario.toLowerCase())
             .eq('conteudo_id', conteudoId)
-            .eq('usuario_email', emailUsuario)
             .maybeSingle();
 
-        if (jaCurtiu) {
-            // Se já curtiu, remove a curtida (Descurtir)
+        if (jaFavorito) {
+            // Se já for favorito, remove
             await supabase
-                .from('curtidas_vip')
+                .from('favoritos_vip')
                 .delete()
-                .eq('id', jaCurtiu.id);
+                .eq('id', jaFavorito.id);
+            alert("Removido dos favoritos.");
         } else {
-            // Se não curtiu, adiciona a curtida
+            // Se não for, adiciona
             await supabase
-                .from('curtidas_vip')
-                .insert([{ conteudo_id: conteudoId, usuario_email: emailUsuario }]);
-        }
-
-        // Recarrega a galeria para atualizar o contador na tela instantaneamente
-        if (typeof SupabaseStorageVIP !== 'undefined' && SupabaseStorageVIP.renderizarAreaCliente) {
-            await SupabaseStorageVIP.renderizarAreaCliente(containerId, emailUsuario);
+                .from('favoritos_vip')
+                .insert([{ usuario_email: emailUsuario.toLowerCase(), conteudo_id: conteudoId }]);
+            alert("Adicionado aos favoritos!");
         }
     } catch (err) {
-        console.error("Erro ao processar curtida:", err);
+        console.error("Erro ao gerenciar favoritos:", err);
     }
 }
