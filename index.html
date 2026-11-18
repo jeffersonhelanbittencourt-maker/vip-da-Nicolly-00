@@ -7,34 +7,25 @@
   <meta name="robots" content="noindex, nofollow">
   <title>VIP da Nicolly | Conteúdo exclusivo</title>
 
-  <!-- Evita a "piscada" do modal 18+: se a maioridade já foi confirmada, o modal nasce oculto -->
   <script>
     try {
       if (localStorage.getItem('vip_maioridade') === 'true') {
         document.documentElement.classList.add('maior');
       }
-    } catch (e) { /* localStorage indisponível: o modal será exibido normalmente */ }
-
-    /*
-     * URL do back-end (server.js). Deixe vazio se o site for servido pelo próprio
-     * servidor Node. Se o front-end estiver no GitHub Pages, informe a URL pública
-     * do servidor, por exemplo: 'https://vip-nicolly.onrender.com'
-     */
+    } catch (e) {}
     window.VIP_API_BASE = '';
   </script>
 
-  <!-- Fontes com display=swap e fallback de sistema -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- Tailwind via CDN (se falhar, o style.css mantém o layout essencial) -->
   <script src="https://cdn.tailwindcss.com" onerror="window.__cdnFalhou = 'tailwind'"></script>
   <link rel="stylesheet" href="style.css">
 
-  <!-- SDK do Supabase (carregamento adiado para não bloquear a renderização) -->
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="window.__cdnFalhou = 'supabase'"></script>
-  <script defer src="script.js"></script>
+  <!-- Ponto de entrada modular -->
+  <script type="module" src="js/main.js"></script>
 </head>
 
 <body class="antialiased">
@@ -47,10 +38,8 @@
     <p style="padding:1rem;text-align:center;color:#fecaca">Ative o JavaScript para usar a plataforma.</p>
   </noscript>
 
-  <!-- Contêiner de notificações (toasts) -->
   <div id="toastContainer" aria-live="polite" aria-atomic="false"></div>
 
-  <!-- ===================== CABEÇALHO / NAVEGAÇÃO ===================== -->
   <header class="topo glass-barra">
     <div class="container-vip py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
       <a href="#" id="linkLogo" class="text-xl font-extrabold texto-gradiente" aria-label="VIP da Nicolly - início">VIP da Nicolly</a>
@@ -64,8 +53,6 @@
   </header>
 
   <main class="conteudo">
-
-    <!-- ===================== TELA HOME ===================== -->
     <section id="telaHome" aria-labelledby="tituloHome">
       <div class="container-vip pt-12 pb-8 sm:pt-20 text-center">
         <h1 id="tituloHome" class="text-4xl sm:text-6xl font-extrabold">
@@ -83,7 +70,6 @@
 
       <section id="planos" class="container-vip pb-16 pt-6" aria-labelledby="tituloPlanos">
         <h2 id="tituloPlanos" class="text-2xl sm:text-3xl font-extrabold text-center mb-10">Escolha seu plano</h2>
-
         <div class="grade-planos">
           <article class="glass plano-card" aria-label="Plano Semanal">
             <div>
@@ -119,32 +105,16 @@
       </section>
     </section>
 
-    <!-- ===================== TELA CLIENTE ===================== -->
     <section id="telaCliente" class="container-vip py-10" aria-labelledby="tituloCliente" hidden>
       <div class="glass p-6 sm:p-8 max-w-xl mx-auto">
         <h2 id="tituloCliente" class="text-2xl font-extrabold mb-6">Área do Cliente</h2>
-
         <dl class="space-y-4">
-          <div>
-            <dt class="rotulo">E-mail</dt>
-            <dd id="clienteEmail" class="font-semibold break-all"></dd>
-          </div>
-          <div>
-            <dt class="rotulo">Plano</dt>
-            <dd id="clientePlano" class="font-semibold"></dd>
-          </div>
-          <div>
-            <dt class="rotulo">Status</dt>
-            <dd><span id="clienteStatus" class="selo selo-pendente">Pendente</span></dd>
-          </div>
-          <div id="blocoVencimento" hidden>
-            <dt class="rotulo">Válido até</dt>
-            <dd id="clienteVencimento" class="font-semibold"></dd>
-          </div>
+          <div><dt class="rotulo">E-mail</dt><dd id="clienteEmail" class="font-semibold break-all"></dd></div>
+          <div><dt class="rotulo">Plano</dt><dd id="clientePlano" class="font-semibold"></dd></div>
+          <div><dt class="rotulo">Status</dt><dd><span id="clienteStatus" class="selo selo-pendente">Pendente</span></dd></div>
+          <div id="blocoVencimento" hidden><dt class="rotulo">Válido até</dt><dd id="clienteVencimento" class="font-semibold"></dd></div>
         </dl>
-
         <div id="clienteMsg" class="msg msg-aviso mt-6" role="status" hidden></div>
-
         <div class="mt-6 flex flex-col gap-3">
           <button type="button" id="btnGrupoVip" class="btn btn-verde btn-bloco" disabled>
             <svg id="iconeCadeado" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
@@ -159,7 +129,6 @@
       </div>
     </section>
 
-    <!-- ===================== TELA ADMIN ===================== -->
     <section id="telaAdmin" class="container-vip py-10" aria-labelledby="tituloAdmin" hidden>
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <h2 id="tituloAdmin" class="text-2xl font-extrabold flex items-center gap-2">
@@ -226,11 +195,11 @@
         <h3 class="text-lg font-bold">Configurações de links e e-mails</h3>
         <div>
           <label for="inputLinkWhats" class="rotulo">Link de convite do grupo do WhatsApp</label>
-          <input id="inputLinkWhats" type="url" class="campo" placeholder="https://chat.whatsapp.com/seu-codigo-de-convite" autocomplete="off">
+          <input id="inputLinkWhats" type="url" class="campo" placeholder="https://chat.whatsapp.com/seu-codigo" autocomplete="off">
         </div>
         <div>
           <label for="inputEmailsNotif" class="rotulo">E-mails de notificação (separados por vírgula)</label>
-          <input id="inputEmailsNotif" type="text" class="campo" placeholder="exemplo@email.com, outro@email.com" autocomplete="off">
+          <input id="inputEmailsNotif" type="text" class="campo" placeholder="exemplo@email.com" autocomplete="off">
         </div>
         <div id="configMsg" class="msg msg-ok" role="status" hidden></div>
         <button type="submit" id="btnSalvarConfig" class="btn btn-primario btn-bloco sm:w-auto">Salvar configurações</button>
@@ -242,10 +211,10 @@
     <p>© VIP da Nicolly. Conteúdo exclusivo para maiores de 18 anos.</p>
   </footer>
 
-  <!-- ===================== MODAL 18+ ===================== -->
+  <!-- Modais -->
   <div id="modalIdade" class="modal" role="dialog" aria-modal="true" aria-labelledby="tituloIdade">
     <div class="modal-card text-center">
-      <button type="button" id="btnIdadeFechar" class="btn-fechar" aria-label="Fechar e informar que não sou maior de 18 anos">
+      <button type="button" id="btnIdadeFechar" class="btn-fechar" aria-label="Fechar">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
       </button>
       <div id="idadePergunta">
@@ -259,33 +228,24 @@
       </div>
       <div id="idadeNegado" hidden>
         <h2 class="text-xl font-extrabold">Acesso bloqueado</h2>
-        <p class="mt-3 text-zinc-400 text-sm">Este conteúdo é destinado apenas a maiores de 18 anos. Você não pode continuar.</p>
+        <p class="mt-3 text-zinc-400 text-sm">Este conteúdo é destinado apenas a maiores de 18 anos.</p>
       </div>
     </div>
   </div>
 
-  <!-- ===================== MODAL AUTENTICAÇÃO ===================== -->
   <div id="modalAuth" class="modal" role="dialog" aria-modal="true" aria-labelledby="tituloAuth" hidden>
     <div class="modal-card">
       <button type="button" class="btn-fechar" data-fechar="modalAuth" aria-label="Fechar">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
       </button>
       <h2 id="tituloAuth" class="text-xl font-extrabold mb-4">Entrar ou criar conta</h2>
-
-      <div class="abas mb-5" role="tablist" aria-label="Escolha entre entrar e criar conta">
+      <div class="abas mb-5" role="tablist">
         <button type="button" id="tabLogin" class="aba" role="tab" aria-selected="true">Entrar</button>
         <button type="button" id="tabCadastro" class="aba" role="tab" aria-selected="false">Criar conta</button>
       </div>
-
       <form id="formAuth" class="space-y-4" novalidate>
-        <div>
-          <label for="inputEmailAuth" class="rotulo">E-mail</label>
-          <input id="inputEmailAuth" type="email" class="campo" placeholder="seuemail@exemplo.com" autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false">
-        </div>
-        <div>
-          <label for="inputSenhaAuth" class="rotulo">Senha (mínimo 6 caracteres)</label>
-          <input id="inputSenhaAuth" type="password" class="campo" placeholder="Digite sua senha" autocomplete="current-password" minlength="6">
-        </div>
+        <div><label for="inputEmailAuth" class="rotulo">E-mail</label><input id="inputEmailAuth" type="email" class="campo" placeholder="seuemail@exemplo.com" autocomplete="email" inputmode="email"></div>
+        <div><label for="inputSenhaAuth" class="rotulo">Senha (mínimo 6 caracteres)</label><input id="inputSenhaAuth" type="password" class="campo" placeholder="Digite sua senha" autocomplete="current-password" minlength="6"></div>
         <div id="authMsg" class="msg" role="alert" hidden></div>
         <button type="submit" id="btnSubmitAuth" class="btn btn-primario btn-bloco">Entrar</button>
         <button type="button" id="btnEsqueciSenha" class="btn btn-secundario btn-bloco btn-pequeno">Esqueci minha senha</button>
@@ -293,33 +253,23 @@
     </div>
   </div>
 
-  <!-- ===================== MODAL TROCA DE SENHA ===================== -->
   <div id="modalSenha" class="modal" role="dialog" aria-modal="true" aria-labelledby="tituloSenha" hidden>
     <div class="modal-card">
-      <button type="button" class="btn-fechar" data-fechar="modalSenha" aria-label="Fechar">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-      </button>
+      <button type="button" class="btn-fechar" data-fechar="modalSenha" aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
       <h2 id="tituloSenha" class="text-xl font-extrabold mb-4">Trocar senha</h2>
       <form id="formSenha" class="space-y-4" novalidate>
-        <div>
-          <label for="inputNovaSenha" class="rotulo">Nova senha (mínimo 6 caracteres)</label>
-          <input id="inputNovaSenha" type="password" class="campo" placeholder="Digite a nova senha" autocomplete="new-password" minlength="6">
-        </div>
+        <div><label for="inputNovaSenha" class="rotulo">Nova senha (mínimo 6 caracteres)</label><input id="inputNovaSenha" type="password" class="campo" placeholder="Digite a nova senha" autocomplete="new-password" minlength="6"></div>
         <div id="senhaMsg" class="msg" role="alert" hidden></div>
         <button type="submit" id="btnSalvarSenha" class="btn btn-primario btn-bloco">Salvar nova senha</button>
       </form>
     </div>
   </div>
 
-  <!-- ===================== MODAL PIX ===================== -->
   <div id="modalPix" class="modal" role="dialog" aria-modal="true" aria-labelledby="tituloPix" hidden>
     <div class="modal-card">
-      <button type="button" class="btn-fechar" data-fechar="modalPix" aria-label="Fechar">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-      </button>
+      <button type="button" class="btn-fechar" data-fechar="modalPix" aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
       <h2 id="tituloPix" class="text-xl font-extrabold mb-1">Pagamento via Pix</h2>
       <p id="pixPlanoResumo" class="text-sm text-zinc-400 mb-4"></p>
-
       <div id="pixEscolha" class="space-y-4" hidden>
         <div class="text-center">
           <p id="pixPrecoOriginal" class="preco-riscado" hidden></p>
@@ -334,37 +284,26 @@
         </div>
         <button type="button" id="btnGerarPix" class="btn btn-primario btn-bloco">Gerar Pix</button>
       </div>
-
       <div id="pixCarregando" class="text-center py-8" hidden>
         <span class="carregando-ponto" aria-hidden="true"></span>
         <p class="mt-4 text-zinc-300 font-semibold">Gerando seu Pix...</p>
       </div>
-
       <div id="pixConteudo" class="space-y-4" hidden>
-        <div class="qr-moldura">
-          <img id="imgPixQr" alt="QR Code do Pix" width="224" height="224">
-        </div>
-        <div>
-          <label for="inputPixCopiaCola" class="rotulo">Pix Copia e Cola</label>
-          <input id="inputPixCopiaCola" type="text" class="campo pix-codigo" readonly placeholder="O código do Pix aparece aqui">
-        </div>
+        <div class="qr-moldura"><img id="imgPixQr" alt="QR Code do Pix" width="224" height="224"></div>
+        <div><label for="inputPixCopiaCola" class="rotulo">Pix Copia e Cola</label><input id="inputPixCopiaCola" type="text" class="campo pix-codigo" readonly placeholder="O código do Pix aparece aqui"></div>
         <button type="button" id="btnCopiarPix" class="btn btn-primario btn-bloco">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>
           <span id="txtCopiarPix">Copiar código Pix</span>
         </button>
         <button type="button" id="btnVerificarPix" class="btn btn-verde btn-bloco">Já paguei / Verificar status</button>
       </div>
-
       <div id="pixMsg" class="msg mt-4" role="status" hidden></div>
     </div>
   </div>
 
-  <!-- ===================== MODAL CONFIRMAÇÃO (ADMIN) ===================== -->
   <div id="modalConfirmar" class="modal" role="dialog" aria-modal="true" aria-labelledby="tituloConfirmar" hidden>
     <div class="modal-card text-center">
-      <button type="button" class="btn-fechar" data-fechar="modalConfirmar" aria-label="Fechar">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-      </button>
+      <button type="button" class="btn-fechar" data-fechar="modalConfirmar" aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
       <h2 id="tituloConfirmar" class="text-xl font-extrabold">Confirmar ação</h2>
       <p id="confirmTexto" class="mt-3 text-zinc-300 break-words"></p>
       <div class="mt-6 grid grid-cols-2 gap-3">
@@ -374,18 +313,14 @@
     </div>
   </div>
 
-  <!-- ===================== MODAL AVISO (TRAVAS DE SEGURANÇA) ===================== -->
   <div id="modalAviso" class="modal" role="alertdialog" aria-modal="true" aria-labelledby="tituloAviso" hidden>
     <div class="modal-card text-center">
-      <button type="button" class="btn-fechar" data-fechar="modalAviso" aria-label="Fechar">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-      </button>
+      <button type="button" class="btn-fechar" data-fechar="modalAviso" aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
       <svg class="mx-auto mb-3" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
       <h2 id="tituloAviso" class="text-xl font-extrabold">Ação não permitida</h2>
       <p class="mt-3 text-zinc-300 text-sm">Esta ação é proibida neste site. O conteúdo é protegido e exclusivo para assinantes.</p>
       <button type="button" class="btn btn-primario btn-bloco mt-6" data-fechar="modalAviso">Entendi</button>
     </div>
   </div>
-
 </body>
 </html>
