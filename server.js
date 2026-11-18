@@ -6,7 +6,7 @@ const { MercadoPagoConfig } = require('mercadopago');
 const app = express();
 app.use(express.json());
 
-// Servir arquivos estáticos do front-end
+// Servir arquivos estáticos do front-end da raiz do projeto
 app.use(express.static(path.join(__dirname)));
 
 // Credenciais oficiais
@@ -14,20 +14,23 @@ const SUPABASE_URL = 'https://wodlhlwezckslounvmlx.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_gTnYby203YRRUb0DeNqcKg_Nqe0M9Yr';
 const MERCADO_PAGO_TOKEN = 'APP_USR-4480456642803254-111801-be3d1e41d0eb72ba4a94bcd81ee19496-16180848';
 
-console.log("Iniciando servidor para o VIP da Nicolly com controle de Admin e Senha Padrão...");
+console.log("Iniciando servidor completo para o VIP da Nicolly...");
 
+// Inicialização do Mercado Pago e Supabase
 const client = new MercadoPagoConfig({ accessToken: MERCADO_PAGO_TOKEN });
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: { persistSession: false, autoRefreshToken: false }
+});
 
 const PORT = process.env.PORT || 10000;
 
-// Lista de usuários autorizados (Admin e Nicolly) com senha padrão 0411
+// Lista de usuários autorizados (Jefferson Administrador e Nicolly)
 const USUARIOS_AUTORIZADOS = [
   { nome: 'Jefferson', email: 'jeffersonhelanbittencourt@gmail.com', admin: true },
   { nome: 'Nicolly', email: 'nicolly@vip.com', admin: false }
 ];
 
-// Rota para verificar o papel e se precisa trocar a senha padrão
+// Rota para verificar o papel do usuário logado (Admin ou Cliente)
 app.get('/papel', async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ success: false, message: 'Não autorizado' });
@@ -39,7 +42,7 @@ app.get('/papel', async (req, res) => {
     if (error || !user) return res.status(401).json({ success: false, message: 'Sessão inválida' });
 
     const cadastro = USUARIOS_AUTORIZADOS.find(u => u.email.toLowerCase() === user.email.toLowerCase());
-    const isAdmin = cadastro ? cadastro.admin : false;
+    const isAdmin = cadastro ? cadastro.admin : (user.email.toLowerCase() === 'jeffersonhelanbittencourt@gmail.com');
 
     res.json({ success: true, data: { admin: isAdmin, nome: cadastro ? cadastro.nome : 'Usuário' } });
   } catch (err) {
@@ -52,7 +55,7 @@ app.get('/health', (req, res) => {
   res.json({ status: 'online', app: 'VIP da Nicolly' });
 });
 
-// Entrega o front-end em qualquer rota
+// Entrega o front-end em qualquer outra rota
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
