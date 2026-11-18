@@ -14,20 +14,20 @@ const SUPABASE_URL = 'https://wodlhlwezckslounvmlx.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_gTnYby203YRRUb0DeNqcKg_Nqe0M9Yr';
 const MERCADO_PAGO_TOKEN = 'APP_USR-4480456642803254-111801-be3d1e41d0eb72ba4a94bcd81ee19496-16180848';
 
-console.log("Iniciando servidor para o VIP da Nicolly com painel Admin...");
+console.log("Iniciando servidor para o VIP da Nicolly com controle de Admin e Senha Padrão...");
 
 const client = new MercadoPagoConfig({ accessToken: MERCADO_PAGO_TOKEN });
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const PORT = process.env.PORT || 10000;
 
-// Lista de administradores autorizados e suas configurações iniciais
-const ADMINS_AUTORIZADOS = [
-  { email: 'jeffersonhelanbittencourt@gmail.com', senhaPadrao: '0411' }, // Substitua pelo seu e-mail exato se necessário
-  { email: 'nicolly@vip.com', senhaPadrao: '0411' } // Exemplo para a Nicolly
+// Lista de usuários autorizados (Admin e Nicolly) com senha padrão 0411
+const USUARIOS_AUTORIZADOS = [
+  { nome: 'Jefferson', email: 'jeffersonhelanbittencourt@gmail.com', admin: true },
+  { nome: 'Nicolly', email: 'nicolly@vip.com', admin: false }
 ];
 
-// Rota para verificar se o usuário é Administrador
+// Rota para verificar o papel e se precisa trocar a senha padrão
 app.get('/papel', async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ success: false, message: 'Não autorizado' });
@@ -38,10 +38,10 @@ app.get('/papel', async (req, res) => {
     
     if (error || !user) return res.status(401).json({ success: false, message: 'Sessão inválida' });
 
-    // Verifica se o e-mail do usuário está na lista de administradores
-    const isAdmin = ADMINS_AUTORIZADOS.some(adm => adm.email.toLowerCase() === user.email.toLowerCase());
+    const cadastro = USUARIOS_AUTORIZADOS.find(u => u.email.toLowerCase() === user.email.toLowerCase());
+    const isAdmin = cadastro ? cadastro.admin : false;
 
-    res.json({ success: true, data: { admin: isAdmin } });
+    res.json({ success: true, data: { admin: isAdmin, nome: cadastro ? cadastro.nome : 'Usuário' } });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Erro no servidor' });
   }
