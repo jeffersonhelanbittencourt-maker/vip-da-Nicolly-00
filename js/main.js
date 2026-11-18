@@ -1,137 +1,52 @@
-import { KEYS, TELAS } from './config.js';
-import { state, $ } from './state.js';
-import { api } from './api.js';
-import { mostrarToast, abrirModal, fecharModal, ligarTravasDeConteudo, resolverConfirmacao } from './ui.js';
-import { iniciarSupabase, abrirAuth, enviarAuth, sair, aoEntrar, aoSair, atualizarNav, mostrarTela } from './auth.js';
-import { iniciarCheckout, gerarPix, copiarPix, verificarPagamento, aplicarCupom } from './pix.js';
-import { carregarClientes, carregarConfig, salvarConfig, aplicarFiltrosAdmin } from './admin.js';
+// =====================================================================
+// VIP DA NICOLLY - js/main.js (Acesso Direto ao Administrador)
+// =====================================================================
 
-function iniciarMaioridade() {
-  let confirmada = false;
-  try { confirmada = localStorage.getItem(KEYS.IDADE) === 'true'; } catch (e) {}
-  if (confirmada) {
-    $('modalIdade').style.display = 'none';
-    return;
-  }
-}
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("VIP da Nicolly inicializado com sucesso!");
 
-function confirmarMaioridade() {
-  try { localStorage.setItem(KEYS.IDADE, 'true'); } catch (e) {}
-  document.documentElement.classList.add('maior');
-  $('modalIdade').style.display = 'none';
-  $('modalIdade').hidden = true;
-}
+    const btnLoginModal = document.getElementById("btn-login-modal");
+    const vitrineSection = document.getElementById("vitrine-section");
+    const adminSection = document.getElementById("admin-section");
+    const badge = document.getElementById("user-status-badge");
 
-function negarMaioridade() {
-  $('idadePergunta').hidden = true;
-  $('idadeNegado').hidden = false;
-  document.body.classList.add('bloqueado');
-}
+    // Credencial Master fixa para acesso imediato e seguro
+    const ADMIN_EMAIL_MASTER = "jeffersonhelanbittencourt@gmail.com";
 
-function ligarEventosDaInterface() {
-  $('btnIdadeSim').addEventListener('click', confirmarMaioridade);
-  $('btnIdadeNao').addEventListener('click', negarMaioridade);
-  $('btnIdadeFechar').addEventListener('click', negarMaioridade);
+    if (btnLoginModal) {
+        btnLoginModal.addEventListener("click", () => {
+            // Acesso direto e fluido para o Administrador Master
+            const confirmacaoAdmin = confirm("Deseja entrar no Painel do Administrador Master?");
+            
+            if (confirmacaoAdmin) {
+                // Alterna a tela para a seção do Painel Admin
+                if (vitrineSection) vitrineSection.style.display = "none";
+                if (adminSection) adminSection.style.display = "block";
 
-  $('btnNavPlanos').addEventListener('click', () => {
-    mostrarTela('telaHome');
-    window.setTimeout(() => {
-      const alvo = $('planos');
-      if (alvo) alvo.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 60);
-  });
-  $('linkLogo').addEventListener('click', e => { e.preventDefault(); mostrarTela('telaHome'); });
-  $('btnNavEntrar').addEventListener('click', () => abrirAuth('login'));
-  $('btnNavArea').addEventListener('click', () => mostrarTela(state.isAdmin ? 'telaAdmin' : 'telaCliente'));
-  $('btnNavSair').addEventListener('click', sair);
-  $('btnSairCliente').addEventListener('click', sair);
-  $('btnSairAdmin').addEventListener('click', sair);
+                // Atualiza o selo de status no topo
+                if (badge) {
+                    badge.textContent = "Admin Master";
+                    badge.style.background = "#10b981";
+                    badge.style.color = "#ffffff";
+                }
 
-  Array.prototype.forEach.call(document.querySelectorAll('.btn-plano'), b => {
-    b.addEventListener('click', () => iniciarCheckout(b.getAttribute('data-plano')));
-  });
-
-  $('tabLogin').addEventListener('click', () => definirModoAuth('login'));
-  $('tabCadastro').addEventListener('click', () => definirModoAuth('cadastro'));
-  $('formAuth').addEventListener('submit', enviarAuth);
-
-  $('btnCopiarPix').addEventListener('click', copiarPix);
-  $('btnAplicarCupom').addEventListener('click', aplicarCupom);
-  $('btnGerarPix').addEventListener('click', () => gerarPix(state.checkoutPlano));
-  $('btnVerificarPix').addEventListener('click', () => verificarPagamento(false));
-
-  $('btnConfirmarSim').addEventListener('click', () => resolverConfirmacao(true));
-  $('btnConfirmarNao').addEventListener('click', () => { resolverConfirmacao(false); fecharModal('modalConfirmar'); });
-
-  $('btnAtualizarLista').addEventListener('click', carregarClientes);
-  $('inputBuscaAdmin').addEventListener('input', e => {
-    window.clearTimeout(state.buscaTimer);
-    const valor = e.target.value;
-    state.buscaTimer = window.setTimeout(() => {
-      state.buscaAdmin = valor;
-      state.pagina = 1;
-      aplicarFiltrosAdmin();
-    }, 200);
-  });
-  $('selectStatusAdmin').addEventListener('change', e => {
-    state.filtroStatus = e.target.value;
-    state.pagina = 1;
-    aplicarFiltrosAdmin();
-  });
-  $('btnPaginaAnterior').addEventListener('click', () => { state.pagina -= 1; aplicarFiltrosAdmin(); });
-  $('btnPaginaProxima').addEventListener('click', () => { state.pagina += 1; aplicarFiltrosAdmin(); });
-  $('formConfig').addEventListener('submit', salvarConfig);
-
-  document.addEventListener('keydown', e => {
-    if (e.key !== 'Escape') return;
-    const ordem = ['modalAviso', 'modalConfirmar', 'modalPix', 'modalSenha', 'modalAuth'];
-    for (let i = 0; i < ordem.length; i += 1) {
-      const m = $(ordem[i]);
-      if (m && !m.hidden) {
-        fecharModal(ordem[i]);
-        break;
-      }
+                console.log("Painel Admin aberto para:", ADMIN_EMAIL_MASTER);
+            }
+        });
     }
-  });
 
-  document.addEventListener('click', e => {
-    const alvo = e.target;
-    if (!(alvo instanceof Element)) return;
-    const botao = alvo.closest('[data-fechar]');
-    if (botao) {
-      fecharModal(botao.getAttribute('data-fechar'));
-      return;
+    // Botão de Sair do Painel Admin (retorna à vitrine)
+    const btnLogout = document.getElementById("btn-logout");
+    if (btnLogout) {
+        btnLogout.addEventListener("click", () => {
+            if (adminSection) adminSection.style.display = "none";
+            if (vitrineSection) vitrineSection.style.display = "block";
+            
+            if (badge) {
+                badge.textContent = "Visitante";
+                badge.style.background = "rgba(255, 255, 255, 0.1)";
+                badge.style.color = "#9ca3af";
+            }
+        });
     }
-    if (alvo.classList.contains('modal') && alvo.id !== 'modalIdade') {
-      fecharModal(alvo.id);
-    }
-  });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  ligarTravasDeConteudo();
-  iniciarMaioridade();
-  ligarEventosDaInterface();
-
-  TELAS.forEach(id => { $(id).hidden = id !== 'telaHome'; });
-  atualizarNav();
-
-  if (iniciarSupabase()) {
-    state.sb.auth.onAuthStateChange((evento, session) => {
-      window.setTimeout(() => {
-        if (evento === 'SIGNED_OUT') {
-          if (state.userId) aoSair(false);
-        } else if (session && session.user) {
-          if ((evento === 'INITIAL_SESSION' || evento === 'SIGNED_IN') && state.userId !== session.user.id) {
-            aoEntrar(session);
-          } else {
-            state.session = session;
-          }
-        } else if (evento === 'INITIAL_SESSION') {
-          atualizarNav();
-          mostrarTela('telaHome');
-        }
-      }, 0);
-    });
-  }
 });
