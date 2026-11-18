@@ -1,0 +1,39 @@
+/* =============================================================================
+ * VIP DA NICOLLY - adm.js (Módulo de Administração Separado)
+ * ========================================================================== */
+const express = require('express');
+const router = express.Router();
+
+// Lista de usuários autorizados (Jefferson Administrador e Nicolly)
+const USUARIOS_ADM = [
+  { login: 'jefferson', senha: '0411', nome: 'Jefferson', admin: true },
+  { login: 'nicolly', senha: '0411', nome: 'Nicolly', admin: false }
+];
+
+// Rota de login do admin que conversa com o servidor
+router.post('/login-admin', (req, res) => {
+  const { login, senha } = req.body;
+  const usuarioDigitado = String(login || '').trim().toLowerCase();
+  const senhaDigitada = String(senha || '').trim();
+
+  const encontrado = USUARIOS_ADM.find(u => u.login === usuarioDigitado && u.senha === senhaDigitada);
+
+  if (encontrado) {
+    res.json({ success: true, data: encontrado });
+  } else {
+    res.status(401).json({ success: false, message: 'Usuário ou senha incorretos' });
+  }
+});
+
+// Rota de papel do usuário
+router.get('/papel', (req, res) => {
+  res.json({ 
+    success: true, 
+    data: { 
+      admin: true, 
+      nome: 'Jefferson' 
+    } 
+  });
+});
+
+module.exports = router;
