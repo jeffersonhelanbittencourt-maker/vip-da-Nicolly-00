@@ -1,9 +1,9 @@
 const express = require('express');
 const path = require('path');
-const { MercadoPagoConfig } = require('mercadopago');
 
-// Importa o módulo de administração separado
+// Importa os módulos separados de Admin e Pix
 const admRouter = require('./adm');
+const pixRouter = require('./pix');
 
 const app = express();
 app.use(express.json());
@@ -11,13 +11,7 @@ app.use(express.json());
 // Configura o Express para servir todos os arquivos estáticos da raiz do projeto
 app.use(express.static(path.join(__dirname)));
 
-// Credenciais oficiais
-const MERCADO_PAGO_TOKEN = 'APP_USR-4480456642803254-111801-be3d1e41d0eb72ba4a94bcd81ee19496-16180848';
-
-console.log("Iniciando servidor principal para o VIP da Nicolly...");
-
-// Inicialização do Mercado Pago
-const client = new MercadoPagoConfig({ accessToken: MERCADO_PAGO_TOKEN });
+console.log("Iniciando servidor principal para o VIP da Nicolly com Pix e Admin...");
 
 const PORT = process.env.PORT || 10000;
 
@@ -26,8 +20,9 @@ app.get('/health', (req, res) => {
   res.json({ status: 'online', app: 'VIP da Nicolly' });
 });
 
-// Conecta as rotas do adm.js conversando com o server.js sob o prefixo /api
+// Conecta as rotas de Administração e Pix sob o prefixo /api
 app.use('/api', admRouter);
+app.use('/api', pixRouter);
 
 // Rota de verificação de status original
 app.get('/verificar-status', async (req, res) => {
