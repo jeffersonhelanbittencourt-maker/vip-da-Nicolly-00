@@ -1,35 +1,32 @@
-// Função para validar o cupom de desconto direto no banco Supabase
-async function aplicarCupomDesconto(codigoCupom, valorOriginal, elementoPrecoId) {
-    if (!codigoCupom) return alert("Digite um código de cupom.");
+// Função para carregar e exibir as notificações do cliente na Área VIP
+async function carregarNotificacoesCliente(emailCliente, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container || !emailCliente) return;
 
     try {
-        // Chama a função RPC 'validar_cupom_vip' armazenada no Supabase
-        const { data, error } = await supabase.rpc('validar_cupom_vip', {
-            p_codigo: codigoCupom,
-            p_valor_original: valorOriginal
-        });
+        // Busca as notificações destinadas ao e-mail do cliente
+        const { data: notificacoes, error } = await supabase
+            .from('notificacoes_vip')
+            .select('*')
+            .eq('email_destinatario', emailCliente.toLowerCase())
+            .order('criado_em', { ascending: false });
 
         if (error) throw error;
 
-        if (data && data.valido) {
-            alert(`✅ Cupom aplicado com sucesso! Desconto de ${data.desconto_percentual}%.`);
-            
-            // Atualiza o preço exibido na tela para o cliente
-            const elementoPreco = document.getElementById(elementoPrecoId);
-            if (elementoPreco) {
-                elementoPreco.innerHTML = `
-                    <span style="text-decoration: line-through; color: #9ca3af; font-size: 1rem;">R$ ${valorOriginal.toFixed(2)}</span>
-                    <span style="color: #10b981; margin-left: 8px;">R$ ${data.valor_final.toFixed(2)}</span>
-                `;
-            }
-            return data.valor_final;
-        } else {
-            alert(`❌ ${data.mensagem || 'Cupom inválido ou expirado.'}`);
-            return valorOriginal;
+        if (!notificacoes || notificacoes.length === 0) {
+            container.innerHTML = `<p style="color: #9ca3af; font-size: 0.85rem;">Nenhuma notificação nova no momento.</p>`;
+            return;
         }
+
+        container.innerHTML = notificacoes.map(item => `
+            <div style="background: #1f2937; border-left: 4px solid #ec4899; padding: 12px 16px; border-radius: 8px; margin-bottom: 10px;">
+                <h4 style="color: #fff; font-size: 0.95rem; margin-bottom: 4px;">${item.titulo}</h4>
+                <p style="color: #d1d5db; font-size: 0.85rem; line-height: 1.4;">${item.mensagem}</p>
+                <span style="color: #9ca3af; font-size: 0.7rem; display: block; margin-top: 6px;">${new Date(item.criado_em).toLocaleDateString('pt-BR')}</span>
+            </div>
+        `).join('');
+
     } catch (err) {
-        console.error("Erro ao validar cupom:", err);
-        alert("Erro ao validar o cupom no servidor.");
-        return valorOriginal;
+        console.error("Erro ao carregar notificações:", err);
     }
 }
