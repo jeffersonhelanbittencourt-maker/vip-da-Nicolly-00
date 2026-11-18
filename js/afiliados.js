@@ -4,7 +4,7 @@
 import { supabase } from './config.js';
 
 export const SupabaseAfiliados = {
-    // 1. Captura o código de indicação da URL (?ref=CODIGO) ao carregar a página
+    // 1. Captura o código de indicação (?ref=CODIGO) ao carregar a página
     verificarIndicaçãoURL() {
         const urlParams = new URLSearchParams(window.location.search);
         const ref = urlParams.get('ref');
@@ -13,7 +13,7 @@ export const SupabaseAfiliados = {
         }
     },
 
-    // 2. Renderiza o painel de indicação e link exclusivo na Área do Cliente
+    // 2. Renderiza o painel de indicação na Área do Cliente
     async renderizarPainelAfiliado(emailUsuario, containerId) {
         const container = document.getElementById(containerId);
         if (!container || !emailUsuario) return;
@@ -40,7 +40,7 @@ export const SupabaseAfiliados = {
             const linkPersonalizado = `${window.location.origin}${window.location.pathname}?ref=${afiliado.codigo_afiliado}`;
 
             container.innerHTML = `
-                <div style="background: #111827; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; margin-top: 20px;">
+                <div style="background: #111827; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; margin-top: 20px;">
                     <h3 style="color: #ec4899; font-size: 1.1rem; margin-bottom: 8px;">🤝 Programa de Afiliados VIP</h3>
                     <p style="color: #9ca3af; font-size: 0.85rem; margin-bottom: 15px;">Compartilhe seu link exclusivo e indique novos membros para o VIP da Nicolly!</p>
                     
@@ -56,7 +56,6 @@ export const SupabaseAfiliados = {
                 </div>
             `;
 
-            // Ação de copiar o link para a área de transferência
             const btnCopiar = document.getElementById("btn-copiar-link");
             if (btnCopiar) {
                 btnCopiar.addEventListener("click", () => {
