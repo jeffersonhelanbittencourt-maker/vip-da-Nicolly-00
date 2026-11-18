@@ -1,11 +1,11 @@
 // =====================================================================
-// VIP DA NICOLLY - js/cupons.js (Gerenciamento de Cupons de Desconto)
+// VIP DA NICOLLY - js/cupons.js (Validação de Cupons de Desconto)
 // =====================================================================
 import { supabase } from './config.js';
 
 export const SupabaseCupons = {
     async validarEAplicarCupom(codigoCupom, valorOriginal) {
-        if (!codigoCupom || !codigoCupom.trim()) {
+        if (!codigoCupom) {
             alert("Digite um código de cupom válido.");
             return { valorFinal: valorOriginal, desconto: 0 };
         }
@@ -19,32 +19,27 @@ export const SupabaseCupons = {
                 .maybeSingle();
 
             if (error || !cupom) {
-                alert("Cupom inválido ou expirado.");
-                return { valorFinal: valorOriginal, desconto: 0 };
-            }
-
-            // Verifica se o cupom já atingiu o limite de usos (se houver)
-            if (cupom.limite_usos && cupom.usos_atuais >= cupom.limite_usos) {
-                alert("Este cupom já atingiu o limite máximo de utilizações.");
+                alert("❌ Cupom inválido ou expirado.");
                 return { valorFinal: valorOriginal, desconto: 0 };
             }
 
             let valorFinal = valorOriginal;
-            let valorDesconto = 0;
+            let desconto = 0;
 
             if (cupom.tipo === 'porcentagem') {
-                valorDesconto = (valorOriginal * cupom.valor) / 100;
-                valorFinal = valorOriginal - valorDesconto;
+                desconto = (valorOriginal * Number(cupom.valor)) / 100;
+                valorFinal = valorOriginal - desconto;
             } else if (cupom.tipo === 'fixo') {
-                valorDesconto = Number(cupom.valor);
-                valorFinal = Math.max(0, valorOriginal - valorDesconto);
+                desconto = Number(cupom.valor);
+                valorFinal = Math.max(0, valorOriginal - desconto);
             }
 
-            alert(`✅ Cupom aplicado com sucesso! Desconto de R$ ${valorDesconto.toFixed(2)}`);
-            return { valorFinal, desconto: valorDesconto, idCupom: cupom.id };
+            alert(`✅ Cupom aplicado com sucesso! Desconto de R$ ${desconto.toFixed(2)}`);
+            return { valorFinal, desconto };
 
         } catch (err) {
             console.error("Erro ao validar cupom:", err);
+            alert("Erro ao aplicar cupom.");
             return { valorFinal: valorOriginal, desconto: 0 };
         }
     }
