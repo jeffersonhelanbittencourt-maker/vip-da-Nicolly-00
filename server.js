@@ -1,47 +1,29 @@
 const express = require('express');
+const cors = require('cors');
 const path = require('path');
-
-// Importa os módulos separados
-const db = require('./db');
-const admRouter = require('./adm');
-const pixRouter = require('./pix');
+const CONFIG = require('./server/config');
+const apiRoutes = require('./server/routes');
 
 const app = express();
+
+app.use(cors());
 app.use(express.json());
 
-// Configura o Express para servir todos os arquivos estáticos da raiz do projeto
+// Servir arquivos estáticos do front-end nas pastas organizadas
 app.use(express.static(path.join(__dirname)));
+app.use('/css', express.static(path.join(__dirname, 'css')));
+app.use('/js', express.static(path.join(__dirname, 'js')));
 
-console.log("Iniciando servidor principal para o VIP da Nicolly...");
+// Montar rotas da API sob o prefixo /api ou diretamente conforme o front chama
+app.use('/api', apiRoutes);
+// Caso seu front chame as rotas diretamente sem o prefixo /api:
+app.use('/', apiRoutes);
 
-const PORT = process.env.PORT || 10000;
-
-// Rota de status/healthcheck do servidor
-app.get('/health', (req, res) => {
-  res.json({ status: 'online', app: 'VIP da Nicolly' });
-});
-
-// Conecta as rotas de Administração e Pix sob o prefixo /api
-app.use('/api', admRouter);
-app.use('/api', pixRouter);
-
-// Rota de verificação de status usando o módulo de banco de dados (db.js)
-app.get('/verificar-status', async (req, res) => {
-  const email = req.query.email;
-  // Exemplo de consulta integrada ao banco de dados se necessário
-  res.json({ success: true, data: { email: email, status: 'pendente', plano: '' } });
-});
-
-// Rota para garantir que links de confirmação de e-mail abram o site corretamente
-app.get('/auth/callback', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// Qualquer outra rota exibe o seu arquivo index.html principal do site
+// Rota coringa para SPA (Single Page Application)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`Servidor rodando perfeitamente na porta ${PORT}`);
+app.listen(CONFIG.PORT, () => {
+  console.log(`[VIP] Servidor rodando na porta ${CONFIG.PORT} com arquitetura modular.`);
 });
