@@ -1,12 +1,13 @@
 // =====================================================================
-// VIP DA NICOLLY - js/main.js (Autenticação e Roteamento via Supabase)
+// VIP DA NICOLLY - js/main.js (Sistema Completo com Supabase, IA e Realtime)
 // =====================================================================
 
 import { supabase, ADMIN_EMAIL_MASTER } from './config.js';
 import { SupabaseAI } from './ai_assistant.js';
+import { SupabaseRealtime } from './realtime.js';
 
 document.addEventListener("DOMContentLoaded", async () => {
-    console.log("VIP da Nicolly conectado ao Supabase!");
+    console.log("VIP da Nicolly conectado ao Supabase com Sucesso!");
 
     const btnAbrirLogin = document.getElementById("btn-abrir-login");
     const modalLogin = document.getElementById("modal-login");
@@ -18,14 +19,31 @@ document.addEventListener("DOMContentLoaded", async () => {
     const adminSection = document.getElementById("admin-section");
     const badge = document.getElementById("user-status-badge");
 
-    // Abrir / Fechar Modal
+    // Abrir / Fechar Modal de Login
     if (btnAbrirLogin) btnAbrirLogin.addEventListener("click", () => modalLogin.style.display = "flex");
     if (btnFecharModal) btnFecharModal.addEventListener("click", () => modalLogin.style.display = "none");
 
-    // Carregar planos do Supabase na vitrine
+    // Carregar planos iniciais do Supabase na vitrine
     carregarPlanosDoSupabase();
 
-    // Sistema de Login Inteligente (Consulta 100% Supabase)
+    // Iniciar assistente de IA moderna (Chat flutuante)
+    SupabaseAI.iniciarChatUI();
+
+    // Iniciar recursos ao vivo gratuitos do Supabase (Realtime & Presença)
+    SupabaseRealtime.iniciar(
+        () => {
+            console.log("Planos atualizados em tempo real!");
+            carregarPlanosDoSupabase();
+        },
+        (pagamento) => {
+            const isAdmin = adminSection && adminSection.style.display === "block";
+            if (isAdmin) {
+                alert(`💰 NOVO PIX APROVADO AO VIVO!\nCliente: ${pagamento.email}\nValor: R$ ${Number(pagamento.valor).toFixed(2)}`);
+            }
+        }
+    );
+
+    // Sistema de Login Inteligente 100% Supabase
     if (formLoginUnico) {
         formLoginUnico.addEventListener("submit", async (e) => {
             e.preventDefault();
@@ -35,7 +53,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             modalLogin.style.display = "none";
 
-            // 1. Verificar se é o Admin Master (Jefferson)
+            // 1. Verificar Admin Master (Jefferson)
             if (emailInput === ADMIN_EMAIL_MASTER.toLowerCase()) {
                 vitrineSection.style.display = "none";
                 clienteSection.style.display = "none";
@@ -46,7 +64,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 return;
             }
 
-            // 2. Verificar se é um Administrador cadastrado na tabela admins_vip
+            // 2. Verificar Administradores na tabela admins_vip
             const { data: adminData } = await supabase
                 .from('admins_vip')
                 .select('*')
@@ -63,7 +81,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 return;
             }
 
-            // 3. Verificar se é um Cliente na tabela clientes_vip
+            // 3. Verificar Clientes na tabela clientes_vip
             const { data: clienteData } = await supabase
                 .from('clientes_vip')
                 .select('*')
@@ -77,7 +95,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 badge.textContent = "Membro VIP";
                 badge.style.background = "#ec4899";
                 
-                document.getElementById("cliente-welcome-title").textContent = `Olá, ${clienteData.nome || 'Cliente'}!`;
+                const tituloCliente = document.getElementById("cliente-welcome-title");
+                if (tituloCliente) tituloCliente.textContent = `Olá, ${clienteData.nome || 'Cliente'}!`;
+                
                 alert("Login de Cliente realizado com sucesso!");
                 return;
             }
@@ -86,38 +106,22 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // Botões de Sair / Logout
+    // Logout Geral
     const sairGeral = () => {
-        adminSection.style.display = "none";
-        clienteSection.style.display = "none";
-        vitrineSection.style.display = "block";
-        badge.textContent = "Visitante";
-        badge.style.background = "rgba(255, 255, 255, 0.1)";
-        badge.style.color = "#9ca3af";
+        if (adminSection) adminSection.style.display = "none";
+        if (clienteSection) clienteSection.style.display = "none";
+        if (vitrineSection) vitrineSection.style.display = "block";
+        if (badge) {
+            badge.textContent = "Visitante";
+            badge.style.background = "rgba(255, 255, 255, 0.1)";
+            badge.style.color = "#9ca3af";
+        }
     };
 
     const btnLogoutAdmin = document.getElementById("btn-logout-admin");
     const btnSairCliente = document.getElementById("btn-sair-cliente");
     if (btnLogoutAdmin) btnLogoutAdmin.addEventListener("click", sairGeral);
     if (btnSairCliente) btnSairCliente.addEventListener("click", sairGeral);
-
-    // Ativação do botão da IA Assistente Supabase
-    const btnIa = document.getElementById("btn-ia-assistente");
-    if (btnIa) {
-        btnIa.addEventListener("click", async () => {
-            const isAdmin = document.getElementById("admin-section")?.style.display === "block";
-            const pergunta = prompt(
-                isAdmin 
-                ? "🤖 IA Admin Supabase:\nDigite 'status' para verificar se o projeto está tudo certo, ou pergunte sobre 'vendas':" 
-                : "🤖 Assistente VIP:\nPergunte sobre 'planos', 'valores' ou 'pix':"
-            );
-            
-            if (pergunta) {
-                const resposta = await SupabaseAI.responderPergunta(pergunta, isAdmin);
-                alert(resposta);
-            }
-        });
-    }
 });
 
 // Função para buscar planos cadastrados no Supabase
