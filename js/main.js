@@ -1,11 +1,12 @@
 // =====================================================================
-// VIP DA NICOLLY - js/main.js (Controlador Principal Completo com Mercado Pago)
+// VIP DA NICOLLY - js/main.js (Controlador Principal Mestre e Unificado)
 // =====================================================================
 import { supabase, ADMIN_EMAIL_MASTER } from './config.js';
 import { SupabaseAI } from './ai_assistant.js';
 import { SupabaseRealtime } from './realtime.js';
 import { SupabaseStorageVIP } from './storage_vip.js';
 import { MercadoPagoVIP } from './pagamentos.js';
+import { SupabaseCupons } from './cupons.js';
 
 let modoCadastro = false;
 
@@ -21,7 +22,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const adminSection = document.getElementById("admin-section");
     const badge = document.getElementById("user-status-badge");
 
-    // Gerenciador de Sessão e Rotas Inteligentes
+    // =====================================================================
+    // 1. GERENCIADOR DE SESSÃO E ROTAS INTELIGENTES
+    // =====================================================================
     async function aplicarSessaoUsuario(user) {
         if (!user || !user.email) return;
         const email = user.email.toLowerCase();
@@ -32,7 +35,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             .eq('email', email)
             .maybeSingle();
 
-        // 1. Painel Admin Master
+        // A. Painel Admin Master (Jefferson / Admins autorizados)
         if (email === ADMIN_EMAIL_MASTER.toLowerCase() || (adminData && adminData.ativo)) {
             if (vitrineSection) vitrineSection.style.display = "none";
             if (clienteSection) clienteSection.style.display = "none";
@@ -48,7 +51,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
 
-        // 2. Área do Cliente VIP
+        // B. Área do Cliente VIP
         if (vitrineSection) vitrineSection.style.display = "none";
         if (adminSection) adminSection.style.display = "none";
         if (clienteSection) clienteSection.style.display = "block";
@@ -66,7 +69,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         await carregarNotificacoesCliente(email, "cliente-notificacoes-container");
     }
 
-    // Carregar Estatísticas e Dados Financeiros do Admin
+    // =====================================================================
+    // 2. PAINEL ADMINISTRATIVO (Estatísticas e Faturamento)
+    // =====================================================================
     async function carregarDadosPainelAdmin() {
         const containerStats = document.getElementById("admin-stats-container");
         if (!containerStats) return;
@@ -100,7 +105,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    // Carregar Notificações do Cliente
+    // =====================================================================
+    // 3. NOTIFICAÇÕES DO CLIENTE
+    // =====================================================================
     async function carregarNotificacoesCliente(emailCliente, containerId) {
         const container = document.getElementById(containerId);
         if (!container) return;
@@ -112,7 +119,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             .order('criado_em', { ascending: false });
 
         if (!notificacoes || notificacoes.length === 0) {
-            container.innerHTML = `<p style="color: #9ca3af; font-size: 0.85rem;">Nenhuma notificação nova.</p>`;
+            container.innerHTML = `<p style="color: #9ca3af; font-size: 0.85rem;">Nenhuma notificação nova no momento.</p>`;
             return;
         }
 
@@ -124,11 +131,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         `).join('');
     }
 
-    // Checar sessão ativa inicial
+    // =====================================================================
+    // 4. AUTENTICAÇÃO E EVENTOS DE MODAL
+    // =====================================================================
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) await aplicarSessaoUsuario(session.user);
 
-    // Eventos do Modal de Autenticação
     if (btnAbrirLogin && modalLogin) {
         btnAbrirLogin.addEventListener("click", () => modalLogin.style.display = "flex");
     }
@@ -145,7 +153,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // Processamento do Formulário de Login / Cadastro
     if (formLoginUnico) {
         formLoginUnico.addEventListener("submit", async (e) => {
             e.preventDefault();
@@ -168,7 +175,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // Processamento de Upload de Mídia pelo Admin
+    // =====================================================================
+    // 5. UPLOAD DE MÍDIA (PAINEL ADMIN)
+    // =====================================================================
     const formUpload = document.getElementById("form-upload-vip");
     if (formUpload) {
         formUpload.addEventListener("submit", async (e) => {
@@ -184,11 +193,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                     btnEnviar.textContent = "Enviando...";
                 }
                 await SupabaseStorageVIP.publicarConteudo(arquivo, titulo, descricao);
-                alert("✅ Conteúdo publicado com sucesso!");
+                alert("✅ Conteúdo publicado com sucesso no Supabase Storage!");
                 formUpload.reset();
                 await carregarDadosPainelAdmin();
             } catch (err) {
-                alert("Erro ao publicar: " + err.message);
+                alert("Erro ao publicar conteúdo: " + err.message);
             } finally {
                 if (btnEnviar) {
                     btnEnviar.disabled = false;
@@ -198,7 +207,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // Ação de Logout Geral
+    // =====================================================================
+    // 6. LOGOUT GERAL
+    // =====================================================================
     const sairGeral = async () => {
         await supabase.auth.signOut();
         if (adminSection) adminSection.style.display = "none";
@@ -217,7 +228,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (btnLogoutAdmin) btnLogoutAdmin.addEventListener("click", sairGeral);
     if (btnSairCliente) btnSairCliente.addEventListener("click", sairGeral);
 
-    // Inicialização de módulos globais
+    // =====================================================================
+    // 7. INICIALIZAÇÃO DE MÓDULOS GLOBAIS (Realtime, IA e Vitrine)
+    // =====================================================================
     carregarPlanosDoSupabase();
     SupabaseAI.iniciarChatUI();
     SupabaseRealtime.iniciar(
@@ -231,7 +244,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
 });
 
-// Função para renderizar os planos na vitrine pública com Mercado Pago integrado
+// =====================================================================
+// 8. VITRINE DE PLANOS COM CUPONS E MERCADO PAGO
+// =====================================================================
 async function carregarPlanosDoSupabase() {
     const container = document.getElementById("planos-container");
     if (!container) return;
@@ -240,20 +255,43 @@ async function carregarPlanosDoSupabase() {
     if (!planos) return;
 
     container.innerHTML = planos.map(plano => `
-        <div class="plano-card" style="background: #111827; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 24px; text-align: center;">
+        <div class="plano-card" style="background: #111827; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 15px;">
             <div>
                 <h3 style="color: #fff; font-size: 1.25rem;">${plano.nome}</h3>
                 <p style="color: #9ca3af; margin: 10px 0; font-size: 0.9rem;">${plano.descricao || ''}</p>
-                <p style="font-size: 1.6rem; font-weight: 700; color: #ec4899; margin: 15px 0;">R$ ${Number(plano.valor).toFixed(2)}</p>
+                <p id="preco-plano-${plano.id}" style="font-size: 1.6rem; font-weight: 700; color: #ec4899; margin: 15px 0;">R$ ${Number(plano.valor).toFixed(2)}</p>
             </div>
-            <button class="btn-primary" id="btn-plano-${plano.id}">Assinar com Pix</button>
+            
+            <!-- Campo de Cupom de Desconto -->
+            <div style="margin: 12px 0; display: flex; gap: 8px;">
+                <input type="text" id="input-cupom-${plano.id}" placeholder="Cupom (ex: VIP10)" style="background: #1f2937; border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 8px; border-radius: 6px; font-size: 0.85rem; flex: 1; text-transform: uppercase;">
+                <button type="button" id="btn-aplicar-cupom-${plano.id}" style="background: #374151; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">Aplicar</button>
+            </div>
+
+            <button class="btn-primary" id="btn-plano-${plano.id}" style="width: 100%; margin-top: 10px;">Assinar com Pix</button>
         </div>
     `).join('');
 
     planos.forEach(plano => {
-        const btn = document.getElementById(`btn-plano-${plano.id}`);
-        if (btn) {
-            btn.addEventListener("click", async () => {
+        let precoAtual = Number(plano.valor);
+        const inputCupom = document.getElementById(`input-cupom-${plano.id}`);
+        const btnAplicar = document.getElementById(`btn-aplicar-cupom-${plano.id}`);
+        const txtPreco = document.getElementById(`preco-plano-${plano.id}`);
+        const btnAssinar = document.getElementById(`btn-plano-${plano.id}`);
+
+        // Ação de aplicar cupom de desconto
+        if (btnAplicar) {
+            btnAplicar.addEventListener("click", async () => {
+                const codigo = inputCupom.value;
+                const resultado = await SupabaseCupons.validarEAplicarCupom(codigo, Number(plano.valor));
+                precoAtual = resultado.valorFinal;
+                txtPreco.textContent = `R$ ${precoAtual.toFixed(2)}`;
+            });
+        }
+
+        // Ação de assinar via Mercado Pago (com o preço atualizado com desconto)
+        if (btnAssinar) {
+            btnAssinar.addEventListener("click", async () => {
                 const { data: { session } } = await supabase.auth.getSession();
                 const emailUsuario = session?.user?.email;
 
@@ -264,7 +302,7 @@ async function carregarPlanosDoSupabase() {
                     return;
                 }
 
-                await MercadoPagoVIP.gerarPagamentoPix(plano.id, plano.nome, plano.valor, emailUsuario);
+                await MercadoPagoVIP.gerenciarPagamentoPix(plano.id, plano.nome, precoAtual, emailUsuario);
             });
         }
     });
