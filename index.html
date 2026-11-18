@@ -1,26 +1,3 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VIP da Nicolly</title>
-
-    <!-- Estilos Fatiados (Pasta CSS) -->
-    <link rel="stylesheet" href="css/variables.css">
-    <link rel="stylesheet" href="css/layout.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/main.css">
-
-    <!-- Fontes e Ícones -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
-
-    <!-- Container Principal da Aplicação -->
-    <div id="app" class="app-container">
-        
         <!-- Cabeçalho / Navbar -->
         <header class="main-header">
             <div class="logo-container">
@@ -28,78 +5,6 @@
             </div>
             <nav class="user-nav">
                 <span id="user-status-badge" class="badge">Visitante</span>
-                <button id="btn-login-modal" class="btn-primary">Entrar / Admin</button>
+                <button id="btn-login-modal" class="btn-primary">Painel Admin</button>
             </nav>
         </header>
-
-        <!-- Conteúdo Dinâmico (Vendido / Planos / Painel) -->
-        <main class="content-body">
-            
-            <!-- Seção de Vendas / Vitrine -->
-            <section id="vitrine-section" class="section-view">
-                <div class="hero-banner">
-                    <h2>Conteúdo Exclusivo & VIP</h2>
-                    <p>Assine agora e tenha acesso imediato ao nosso grupo fechado e materiais especiais.</p>
-                </div>
-
-                <div class="planos-grid" id="planos-container">
-                    <!-- Os planos vindos do Supabase serão injetados aqui via JS -->
-                </div>
-
-                <div class="checkout-box" id="checkout-container" style="display: none;">
-                    <h3>Finalizar Assinatura</h3>
-                    <form id="form-checkout">
-                        <div class="form-group">
-                            <label for="cliente-email">Seu E-mail:</label>
-                            <input type="email" id="cliente-email" required placeholder="seu@email.com">
-                        </div>
-                        <div class="form-group">
-                            <label for="cliente-nome">Seu Nome:</label>
-                            <input type="text" id="cliente-nome" required placeholder="Seu nome completo">
-                        </div>
-                        <button type="submit" class="btn-pix">Pagar com Pix</button>
-                    </form>
-                </div>
-            </section>
-
-            <!-- Painel Administrativo (Protegido) -->
-            <section id="admin-section" class="section-view" style="display: none;">
-                <div class="admin-header">
-                    <h2>Painel do Administrador (Master)</h2>
-                    <button id="btn-logout" class="btn-danger">Sair</button>
-                </div>
-                <div class="admin-stats" id="admin-stats-container">
-                    <!-- Métricas carregadas via admin.js -->
-                </div>
-                <div class="admin-tabs">
-                    <button class="tab-btn active" data-tab="clientes">Clientes</button>
-                    <button class="tab-btn" data-tab="pagamentos">Pagamentos</button>
-                    <button class="tab-btn" data-tab="configuracoes">Configurações</button>
-                </div>
-                <div class="admin-content" id="admin-tab-content">
-                    <!-- Conteúdo dinâmico do painel -->
-                </div>
-            </section>
-
-        </main>
-
-        <!-- Rodapé -->
-        <footer class="main-footer">
-            <p>&copy; 2026 VIP da Nicolly - Todos os direitos reservados.</p>
-        </footer>
-
-    </div>
-
-    <!-- Módulos ES6 do Front-end (Pasta JS) -->
-    <script type="module" src="js/config.js"></script>
-    <script type="module" src="js/state.js"></script>
-    <script type="module" src="js/api.js"></script>
-    <script type="module" src="js/ui.js"></script>
-    <script type="module" src="js/auth.js"></script>
-    <script type="module" src="js/cliente.js"></script>
-    <script type="module" src="js/pix.js"></script>
-    <script type="module" src="js/admin.js"></script>
-    <script type="module" src="js/main.js"></script>
-
-</body>
-</html>
