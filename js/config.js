@@ -1,5 +1,5 @@
 // =====================================================================
-// VIP DA NICOLLY - js/config.js
+// VIP DA NICOLLY - js/config.js (Configuração e Conexão Supabase)
 // =====================================================================
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
