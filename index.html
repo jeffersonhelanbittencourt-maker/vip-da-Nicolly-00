@@ -70,19 +70,24 @@
         </main>
 
         <!-- Modal de Login Unificado -->
-        <div id="modal-login" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+        <div id="modal-login" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; z-index: 1000;">
             <div style="background: #111827; padding: 30px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); width: 100%; max-width: 400px; position: relative;">
                 <h3 style="margin-bottom: 20px; color: #fff;">Acessar Plataforma</h3>
                 <form id="form-login-unico">
                     <div class="form-group">
                         <label for="login-email">Seu E-mail cadastrado:</label>
-                        <input type="email5" id="login-email" required placeholder="seu@email.com" style="width: 100%; padding: 12px; background: #1f2937; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; margin-top: 5px;">
+                        <input type="email" id="login-email" required placeholder="seu@email.com" style="width: 100%; padding: 12px; background: #1f2937; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; margin-top: 5px;">
                     </div>
                     <button type="submit" class="btn-primary" style="width: 100%; margin-top: 15px;">Entrar na Conta</button>
                     <button type="button" id="btn-fechar-modal" style="width: 100%; background: transparent; border: none; color: #9ca3af; margin-top: 10px; cursor: pointer;">Cancelar</button>
                 </form>
             </div>
         </div>
+
+        <!-- Botão Flutuante da IA Assistente Supabase -->
+        <button id="btn-ia-assistente" style="position: fixed; bottom: 20px; right: 20px; background: linear-gradient(135deg, #10b981, #3b82f6); color: white; border: none; padding: 14px 20px; border-radius: 50px; font-weight: 700; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); cursor: pointer; z-index: 999;">
+            🤖 IA Supabase
+        </button>
 
         <!-- Rodapé -->
         <footer class="main-footer">
