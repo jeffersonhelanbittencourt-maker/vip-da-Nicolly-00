@@ -14,12 +14,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     // 0. Verifica e salva o código de Afiliado se houver ?ref= na URL
     SupabaseAfiliados.verificarIndicaçãoURL();
 
+    // 0.1. Verifica se o usuário abriu a página através de um link de recuperação de senha (Recovery Token)
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    if (hashParams.get("type") === "recovery" || window.location.search.includes("type=recovery")) {
+        const modalNovaSenha = document.getElementById("modal-nova-senha");
+        if (modalNovaSenha) modalNovaSenha.style.display = "flex";
+    }
+
     const btnAbrirLogin = document.getElementById("btn-abrir-login");
     const modalLogin = document.getElementById("modal-login");
     const btnFecharModal = document.getElementById("btn-fechar-modal");
     const btnAlternarModo = document.getElementById("btn-alternar-modo-auth");
     const btnEsqueciSenha = document.getElementById("btn-esqueci-senha");
     const formLoginUnico = document.getElementById("form-login-unico");
+    const formNovaSenha = document.getElementById("form-nova-senha");
 
     const vitrineSection = document.getElementById("vitrine-section");
     const clienteSection = document.getElementById("cliente-section");
@@ -40,7 +48,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             .eq('email', email)
             .maybeSingle();
 
-        // A. Painel Admin Master (Direto se for master ou admin cadastrado)
+        // A. Painel Admin Master
         if (email === ADMIN_EMAIL_MASTER.toLowerCase() || (adminData && adminData.ativo)) {
             if (vitrineSection) vitrineSection.style.display = "none";
             if (clienteSection) clienteSection.style.display = "none";
@@ -76,25 +84,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // =====================================================================
-    // 2. PAINEL ADMINISTRATIVO (Estatísticas e Faturamento)
+    // 2. PAINEL ADMINISTRATIVO (Estatísticas, Gestão de DMs e Usuários)
     // =====================================================================
     async function carregarDadosPainelAdmin() {
         const containerStats = document.getElementById("admin-stats-container");
+        const containerTabela = document.getElementById("admin-tabela-usuarios");
         if (!containerStats) return;
 
         try {
             const { data: stats } = await supabase.rpc('obter_estatisticas_vip');
-            const { data: financeiro } = await supabase.from('vw_resumo_financeiro').select('*').single();
+            const { data: financeiro } = await supabase.from('vw_resumo_financeiro').select('*').maybeSingle();
+            const { data: clientes } = await supabase.from('clientes_vip').select('*').order('criado_em', { ascending: false });
+            const { data: dms } = await supabase.from('dms_vip').select('*').order('criado_em', { ascending: false });
 
             containerStats.innerHTML = `
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 10px;">
                     <div style="background: #1f2937; padding: 15px; border-radius: 8px;">
                         <p style="color: #9ca3af; font-size: 0.8rem;">Faturamento Total</p>
                         <h3 style="color: #10b981; font-size: 1.4rem; margin-top: 5px;">R$ ${Number(financeiro?.faturamento_total || 0).toFixed(2)}</h3>
-                    </div>
-                    <div style="background: #1f2937; padding: 15px; border-radius: 8px;">
-                        <p style="color: #9ca3af; font-size: 0.8rem;">Faturamento Hoje</p>
-                        <h3 style="color: #38bdf8; font-size: 1.4rem; margin-top: 5px;">R$ ${Number(financeiro?.faturamento_hoje || 0).toFixed(2)}</h3>
                     </div>
                     <div style="background: #1f2937; padding: 15px; border-radius: 8px;">
                         <p style="color: #9ca3af; font-size: 0.8rem;">Clientes Ativos</p>
@@ -104,10 +111,60 @@ document.addEventListener("DOMContentLoaded", async () => {
                         <p style="color: #9ca3af; font-size: 0.8rem;">Conteúdos Publicados</p>
                         <h3 style="color: #a855f7; font-size: 1.4rem; margin-top: 5px;">${stats?.conteudos_publicados || 0}</h3>
                     </div>
+                    <div style="background: #1f2937; padding: 15px; border-radius: 8px;">
+                        <p style="color: #9ca3af; font-size: 0.8rem;">DMs Cadastradas</p>
+                        <h3 style="color: #38bdf8; font-size: 1.4rem; margin-top: 5px;">${stats?.dms_cadastradas || 0}</h3>
+                    </div>
                 </div>
             `;
+
+            if (containerTabela) {
+                containerTabela.innerHTML = `
+                    <h4 style="color: #fff; font-size: 0.95rem; margin-bottom: 8px;">DMs Cadastradas</h4>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-bottom: 20px;">
+                        <thead>
+                            <tr style="background: #1f2937; color: #9ca3af; text-align: left;">
+                                <th style="padding: 8px;">Nome</th>
+                                <th style="padding: 8px;">E-mail</th>
+                                <th style="padding: 8px;">WhatsApp</th>
+                                <th style="padding: 8px;">Senha Padrão</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${dms && dms.length > 0 ? dms.map(d => `
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                    <td style="padding: 8px; color: #fff;">${d.nome}</td>
+                                    <td style="padding: 8px; color: #d1d5db;">${d.email}</td>
+                                    <td style="padding: 8px; color: #d1d5db;">${d.whatsapp || '-'}</td>
+                                    <td style="padding: 8px; color: #10b981; font-weight: 600;">${d.senha_padrao}</td>
+                                </tr>
+                            `).join('') : `<tr><td colspan="4" style="padding: 10px; color: #9ca3af; text-align: center;">Nenhuma DM cadastrada.</td></tr>`}
+                        </tbody>
+                    </table>
+
+                    <h4 style="color: #fff; font-size: 0.95rem; margin-bottom: 8px;">Clientes Registrados</h4>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                        <thead>
+                            <tr style="background: #1f2937; color: #9ca3af; text-align: left;">
+                                <th style="padding: 8px;">E-mail</th>
+                                <th style="padding: 8px;">Telefone</th>
+                                <th style="padding: 8px;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${clientes && clientes.length > 0 ? clientes.map(c => `
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                    <td style="padding: 8px; color: #fff;">${c.email}</td>
+                                    <td style="padding: 8px; color: #d1d5db;">${c.telefone || '-'}</td>
+                                    <td style="padding: 8px; color: #10b981;">${c.status}</td>
+                                </tr>
+                            `).join('') : `<tr><td colspan="3" style="padding: 10px; color: #9ca3af; text-align: center;">Nenhum cliente registrado.</td></tr>`}
+                        </tbody>
+                    </table>
+                `;
+            }
         } catch (err) {
-            console.error("Erro ao carregar estatísticas do admin:", err);
+            console.error("Erro ao carregar dados do admin:", err);
         }
     }
 
@@ -150,7 +207,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         btnFecharModal.addEventListener("click", () => modalLogin.style.display = "none");
     }
 
-    // Alternar entre Login e Cadastro (exibe campo de WhatsApp/Celular)
+    // Alternar entre Login e Cadastro
     if (btnAlternarModo) {
         btnAlternarModo.addEventListener("click", () => {
             modoCadastro = !modoCadastro;
@@ -168,7 +225,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // Recuperação de senha nativa do Supabase ("Esqueci a senha")
+    // Botão "Esqueci a senha"
     if (btnEsqueciSenha) {
         btnEsqueciSenha.addEventListener("click", async () => {
             const emailInput = document.getElementById("login-email").value.trim().toLowerCase();
@@ -182,12 +239,29 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (error) {
                 alert("Erro ao enviar e-mail de recuperação: " + error.message);
             } else {
-                alert("✅ E-mail de recuperação de senha enviado com sucesso! Verifique sua caixa de entrada.");
+                alert("✅ E-mail de recuperação enviado com sucesso! Verifique sua caixa de entrada.");
             }
         });
     }
 
-    // Envio do formulário de autenticação (Login ou Cadastro com Telefone)
+    // Processamento do Pop-up de Nova Senha (Após clicar no link do e-mail)
+    if (formNovaSenha) {
+        formNovaSenha.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const novaSenha = document.getElementById("input-nova-senha").value;
+            const { data, error } = await supabase.auth.updateUser({ password: novaSenha });
+
+            if (error) {
+                alert("Erro ao atualizar senha: " + error.message);
+            } else {
+                alert("✅ Senha atualizada com sucesso!");
+                document.getElementById("modal-nova-senha").style.display = "none";
+                if (data.user) await aplicarSessaoUsuario(data.user);
+            }
+        });
+    }
+
+    // Envio do formulário de Login / Cadastro (Com verificação robusta de e-mail duplicado)
     if (formLoginUnico) {
         formLoginUnico.addEventListener("submit", async (e) => {
             e.preventDefault();
@@ -201,7 +275,17 @@ document.addEventListener("DOMContentLoaded", async () => {
                     password,
                     options: { data: { telefone: telefone } }
                 });
-                if (error) return alert("Erro ao criar conta: " + error.message);
+
+                if (error) {
+                    if (error.message.includes("already registered") || error.status === 422) {
+                        if (confirm("⚠️ Este e-mail já possui cadastro na plataforma!\n\nDeseja redefinir a senha agora?")) {
+                            await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.href });
+                            alert("Instruções de recuperação enviadas para o seu e-mail.");
+                        }
+                        return;
+                    }
+                    return alert("Erro ao criar conta: " + error.message);
+                }
 
                 await supabase.from('clientes_vip').upsert({ 
                     email: email, 
@@ -222,7 +306,37 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // =====================================================================
-    // 5. UPLOAD DE MÍDIA (PAINEL ADMIN)
+    // 5. CADASTRO DE DMS NO PAINEL ADMIN
+    // =====================================================================
+    const formCadastrarDM = document.getElementById("form-cadastrar-dm");
+    if (formCadastrarDM) {
+        formCadastrarDM.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const nome = document.getElementById("dm-nome").value.trim();
+            const email = document.getElementById("dm-email").value.trim().toLowerCase();
+            const whatsapp = document.getElementById("dm-whatsapp").value.trim();
+
+            try {
+                const { error } = await supabase.from('dms_vip').insert([{
+                    nome: nome,
+                    email: email,
+                    whatsapp: whatsapp,
+                    senha_padrao: '04/11',
+                    status: 'ativo'
+                }]);
+
+                if (error) throw error;
+                alert(`✅ DM ${nome} cadastrada com sucesso! Senha padrão: 04/11`);
+                formCadastrarDM.reset();
+                await carregarDadosPainelAdmin();
+            } catch (err) {
+                alert("Erro ao cadastrar DM: " + err.message);
+            }
+        });
+    }
+
+    // =====================================================================
+    // 6. UPLOAD DE MÍDIA (PAINEL ADMIN)
     // =====================================================================
     const formUpload = document.getElementById("form-upload-vip");
     if (formUpload) {
@@ -247,14 +361,14 @@ document.addEventListener("DOMContentLoaded", async () => {
             } finally {
                 if (btnEnviar) {
                     btnEnviar.disabled = false;
-                    btnEnviar.textContent = "Publicar no Supabase Storage";
+                    btnEnviar.textContent = "Publicar no Storage";
                 }
             }
         });
     }
 
     // =====================================================================
-    // 6. LOGOUT GERAL
+    // 7. LOGOUT GERAL
     // =====================================================================
     const sairGeral = async () => {
         await supabase.auth.signOut();
@@ -275,7 +389,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (btnSairCliente) btnSairCliente.addEventListener("click", sairGeral);
 
     // =====================================================================
-    // 7. INICIALIZAÇÃO DE MÓDULOS GLOBAIS (Realtime e Vitrine)
+    // 8. INICIALIZAÇÃO DE MÓDULOS GLOBAIS (Realtime e Vitrine)
     // =====================================================================
     carregarPlanosDoSupabase();
     SupabaseRealtime.iniciar(
@@ -290,7 +404,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // =====================================================================
-// 8. VITRINE DE PLANOS COM CUPONS E MERCADO PAGO
+// 9. VITRINE DE PLANOS COM CUPONS E MERCADO PAGO
 // =====================================================================
 async function carregarPlanosDoSupabase() {
     const container = document.getElementById("planos-container");
