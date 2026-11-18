@@ -1,10 +1,11 @@
 // =====================================================================
-// VIP DA NICOLLY - js/main.js (Controlador Principal Completo)
+// VIP DA NICOLLY - js/main.js (Controlador Principal Completo com Mercado Pago)
 // =====================================================================
 import { supabase, ADMIN_EMAIL_MASTER } from './config.js';
 import { SupabaseAI } from './ai_assistant.js';
 import { SupabaseRealtime } from './realtime.js';
 import { SupabaseStorageVIP } from './storage_vip.js';
+import { MercadoPagoVIP } from './pagamentos.js';
 
 let modoCadastro = false;
 
@@ -230,7 +231,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
 });
 
-// Função para renderizar os planos na vitrine pública
+// Função para renderizar os planos na vitrine pública com Mercado Pago integrado
 async function carregarPlanosDoSupabase() {
     const container = document.getElementById("planos-container");
     if (!container) return;
@@ -245,7 +246,26 @@ async function carregarPlanosDoSupabase() {
                 <p style="color: #9ca3af; margin: 10px 0; font-size: 0.9rem;">${plano.descricao || ''}</p>
                 <p style="font-size: 1.6rem; font-weight: 700; color: #ec4899; margin: 15px 0;">R$ ${Number(plano.valor).toFixed(2)}</p>
             </div>
-            <button class="btn-primary" onclick="alert('Redirecionando para pagamento Pix do plano ${plano.nome}...')">Assinar Agora</button>
+            <button class="btn-primary" id="btn-plano-${plano.id}">Assinar com Pix</button>
         </div>
     `).join('');
+
+    planos.forEach(plano => {
+        const btn = document.getElementById(`btn-plano-${plano.id}`);
+        if (btn) {
+            btn.addEventListener("click", async () => {
+                const { data: { session } } = await supabase.auth.getSession();
+                const emailUsuario = session?.user?.email;
+
+                if (!emailUsuario) {
+                    alert("Por favor, faça login ou crie sua conta antes de assinar um plano!");
+                    const modalLogin = document.getElementById("modal-login");
+                    if (modalLogin) modalLogin.style.display = "flex";
+                    return;
+                }
+
+                await MercadoPagoVIP.gerarPagamentoPix(plano.id, plano.nome, plano.valor, emailUsuario);
+            });
+        }
+    });
 }
