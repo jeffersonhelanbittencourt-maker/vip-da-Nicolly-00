@@ -4,26 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VIP da Nicolly - Área Exclusiva</title>
-    <link rel="stylesheet" href="style.css"> <!-- Seu arquivo de estilo -->
+    <!-- Estilos base em modo escuro responsivo -->
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background: #0b0f19; color: #f3f4f6; min-height: 100vh; display: flex; flex-direction: column; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; background: #111827; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        main { flex: 1; max-width: 1100px; width: 100%; margin: 0 auto; padding: 30px 20px; }
+        .btn-primary { background: #ec4899; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: background 0.2s; }
+        .btn-primary:hover { background: #db2777; }
+        .plano-card { background: #111827; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 24px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; }
+    </style>
 </head>
-<body style="background: #0b0f19; color: #fff; font-family: sans-serif; margin: 0; padding: 0;">
+<body>
 
     <!-- CABEÇALHO / HEADER -->
-    <header style="display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; background: #111827; border-bottom: 1px solid rgba(255,255,255,0.1);">
-        <h1 style="font-size: 1.5rem; color: #ec4899; margin: 0;">VIP da Nicolly ✨</h1>
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <span id="user-status-badge" style="padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; background: rgba(255,255,255,0.1); color: #9ca3af;">Visitante</span>
-            <button id="btn-abrir-login" class="btn-primary" style="background: #ec4899; color: #fff; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600;">Entrar / Criar Conta</button>
+    <header>
+        <h1 style="font-size: 1.4rem; color: #ec4899; font-weight: 700;">VIP da Nicolly ✨</h1>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <span id="user-status-badge" style="padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; background: rgba(255, 255, 255, 0.08); color: #9ca3af;">Visitante</span>
+            <button id="btn-abrir-login" class="btn-primary" style="padding: 8px 16px; font-size: 0.85rem;">Entrar / Criar Conta</button>
         </div>
     </header>
 
-    <main style="max-width: 1200px; margin: 0 auto; padding: 30px 20px;">
+    <main>
 
-        <!-- 1. SEÇÃO VITRINE (Pública / Planos) -->
+        <!-- 1. SEÇÃO VITRINE (Pública / Planos & Cupons) -->
         <section id="vitrine-section">
-            <div style="text-align: center; margin-bottom: 40px;">
-                <h2 style="font-size: 2.2rem; margin-bottom: 10px;">Conteúdo Exclusivo e Privado</h2>
-                <p style="color: #9ca3af; font-size: 1rem;">Escolha um plano abaixo, assine com Pix via Mercado Pago e tenha acesso imediato!</p>
+            <div style="text-align: center; margin-bottom: 35px;">
+                <h2 style="font-size: 2rem; color: #fff; margin-bottom: 8px;">Conteúdo Exclusivo e Privado</h2>
+                <p style="color: #9ca3af; font-size: 0.95rem;">Escolha um plano abaixo, aplique seu cupom, assine com Pix e tenha acesso imediato!</p>
             </div>
             <!-- Container onde os planos do Supabase aparecem dinamicamente -->
             <div id="planos-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;"></div>
@@ -31,48 +40,51 @@
 
         <!-- 2. SEÇÃO ÁREA DO CLIENTE VIP -->
         <section id="cliente-section" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background: #111827; padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
                 <div>
-                    <h2 id="cliente-welcome-title" style="font-size: 1.8rem; color: #fff; margin: 0;">Olá, Membro VIP!</h2>
-                    <p style="color: #9ca3af; font-size: 0.9rem; margin-top: 5px;">Aproveite todos os conteúdos exclusivos liberados para você.</p>
+                    <h2 id="cliente-welcome-title" style="font-size: 1.6rem; color: #fff; margin: 0;">Olá, Membro VIP!</h2>
+                    <p style="color: #9ca3af; font-size: 0.85rem; margin-top: 4px;">Aproveite todos os conteúdos exclusivos liberados para você.</p>
                 </div>
-                <button id="btn-sair-cliente" style="background: #ef4444; color: #fff; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer;">Sair da Conta</button>
+                <button id="btn-sair-cliente" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">Sair da Conta</button>
             </div>
 
             <!-- Notificações do Cliente -->
-            <div id="cliente-notificacoes-container" style="margin-bottom: 25px;"></div>
+            <div id="cliente-notificacoes-container"></div>
+
+            <!-- Programa de Afiliados do Cliente -->
+            <div id="cliente-afiliados-container"></div>
 
             <!-- Galeria de Mídias VIP (Fotos, Vídeos, Curtidas, Favoritos) -->
-            <div id="galeria-vip-container"></div>
+            <div id="galeria-vip-container" style="margin-top: 25px;"></div>
         </section>
 
         <!-- 3. SEÇÃO PAINEL ADMIN MASTER -->
         <section id="admin-section" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-                <h2 style="font-size: 1.8rem; color: #10b981; margin: 0;">Painel Administrativo Master</h2>
-                <button id="btn-logout-admin" style="background: #ef4444; color: #fff; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer;">Sair do Painel</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background: #111827; padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+                <h2 style="font-size: 1.6rem; color: #10b981; margin: 0;">Painel Administrativo Master</h2>
+                <button id="btn-logout-admin" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600;">Sair do Painel</button>
             </div>
 
             <!-- Estatísticas Financeiras e de Acessos -->
-            <div id="admin-stats-container" style="margin-bottom: 30px;"></div>
+            <div id="admin-stats-container" style="margin-bottom: 25px;"></div>
 
             <!-- Formulário de Upload de Mídias para o Storage -->
-            <div style="background: #111827; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 25px; margin-top: 20px;">
-                <h3 style="color: #fff; font-size: 1.2rem; margin-bottom: 15px;">Publicar Novo Conteúdo VIP</h3>
-                <form id="form-upload-vip" style="display: flex; flexDirection: column; gap: 15px;">
+            <div style="background: #111827; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 25px;">
+                <h3 style="color: #fff; font-size: 1.1rem; margin-bottom: 15px;">Publicar Novo Conteúdo VIP</h3>
+                <form id="form-upload-vip" style="display: flex; flex-direction: column; gap: 14px;">
                     <div>
-                        <label style="display: block; font-size: 0.85rem; color: #9ca3af; margin-bottom: 5px;">Título da Publicação</label>
-                        <input type="text" id="midia-titulo" required placeholder="Ex: Ensaio Exclusivo #01" style="width: 100%; padding: 10px; background: #1f2937; border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 6px;">
+                        <label style="display: block; font-size: 0.8rem; color: #9ca3af; margin-bottom: 5px;">Título da Publicação</label>
+                        <input type="text" id="midia-titulo" required placeholder="Ex: Ensaio Exclusivo #01" style="width: 100%; padding: 10px; background: #1f2937; border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 6px; font-size: 0.9rem;">
                     </div>
                     <div>
-                        <label style="display: block; font-size: 0.85rem; color: #9ca3af; margin-bottom: 5px;">Descrição (Opcional)</label>
-                        <textarea id="midia-descricao" placeholder="Detalhes sobre o conteúdo..." style="width: 100%; padding: 10px; background: #1f2937; border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 6px; height: 80px;"></textarea>
+                        <label style="display: block; font-size: 0.8rem; color: #9ca3af; margin-bottom: 5px;">Descrição (Opcional)</label>
+                        <textarea id="midia-descricao" placeholder="Detalhes sobre o conteúdo..." style="width: 100%; padding: 10px; background: #1f2937; border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 6px; height: 75px; font-size: 0.9rem; resize: vertical;"></textarea>
                     </div>
                     <div>
-                        <label style="display: block; font-size: 0.85rem; color: #9ca3af; margin-bottom: 5px;">Arquivo de Mídia (Foto ou Vídeo)</label>
-                        <input type="file" id="midia-arquivo" accept="image/*,video/*" required style="color: #fff;">
+                        <label style="display: block; font-size: 0.8rem; color: #9ca3af; margin-bottom: 5px;">Arquivo de Mídia (Foto ou Vídeo)</label>
+                        <input type="file" id="midia-arquivo" accept="image/*,video/*" required style="color: #9ca3af; font-size: 0.85rem;">
                     </div>
-                    <button type="submit" id="btn-enviar-midia" class="btn-primary" style="background: #10b981; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer;">Publicar no Supabase Storage</button>
+                    <button type="submit" id="btn-enviar-midia" class="btn-primary" style="background: #10b981; margin-top: 5px;">Publicar no Supabase Storage</button>
                 </form>
             </div>
         </section>
@@ -80,25 +92,25 @@
     </main>
 
     <!-- MODAL DE LOGIN / CADASTRO -->
-    <div id="modal-login" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 1000;">
-        <div style="background: #111827; border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; padding: 30px; width: 100%; max-width: 400px; position: relative;">
-            <button id="btn-fechar-modal" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: #9ca3af; font-size: 1.2rem; cursor: pointer;">✕</button>
+    <div id="modal-login" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); justify-content: center; align-items: center; z-index: 1000; padding: 15px;">
+        <div style="background: #111827; border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 25px; width: 100%; max-width: 380px; position: relative;">
+            <button id="btn-fechar-modal" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: #9ca3af; font-size: 1.1rem; cursor: pointer;">✕</button>
             
-            <h3 id="modal-auth-titulo" style="color: #fff; font-size: 1.4rem; margin-bottom: 20px; text-align: center;">Acessar Plataforma</h3>
+            <h3 id="modal-auth-titulo" style="color: #fff; font-size: 1.3rem; margin-bottom: 20px; text-align: center;">Acessar Plataforma</h3>
             
-            <form id="form-login-unico" style="display: flex; flex-direction: column; gap: 15px;">
+            <form id="form-login-unico" style="display: flex; flex-direction: column; gap: 14px;">
                 <div>
-                    <label style="display: block; font-size: 0.85rem; color: #9ca3af; margin-bottom: 5px;">E-mail</label>
-                    <input type="email" id="login-email" required placeholder="seu@email.com" style="width: 100%; padding: 10px; background: #1f2937; border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 6px;">
+                    <label style="display: block; font-size: 0.8rem; color: #9ca3af; margin-bottom: 5px;">E-mail</label>
+                    <input type="email" id="login-email" required placeholder="seu@email.com" style="width: 100%; padding: 10px; background: #1f2937; border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 6px; font-size: 0.9rem;">
                 </div>
                 <div>
-                    <label style="display: block; font-size: 0.85rem; color: #9ca3af; margin-bottom: 5px;">Senha</label>
-                    <input type="password" id="login-senha" required placeholder="••••••••" style="width: 100%; padding: 10px; background: #1f2937; border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 6px;">
+                    <label style="display: block; font-size: 0.8rem; color: #9ca3af; margin-bottom: 5px;">Senha</label>
+                    <input type="password" id="login-senha" required placeholder="••••••••" style="width: 100%; padding: 10px; background: #1f2937; border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 6px; font-size: 0.9rem;">
                 </div>
-                <button type="submit" id="btn-submit-auth" class="btn-primary" style="background: #ec4899; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 10px;">Entrar na Conta</button>
+                <button type="submit" id="btn-submit-auth" class="btn-primary" style="margin-top: 5px;">Entrar na Conta</button>
             </form>
 
-            <button type="button" id="btn-alternar-modo-auth" style="background: none; border: none; color: #38bdf8; font-size: 0.85rem; cursor: pointer; display: block; margin: 20px auto 0 auto; text-align: center;">Não tem conta? Criar conta agora</button>
+            <button type="button" id="btn-alternar-modo-auth" style="background: none; border: none; color: #38bdf8; font-size: 0.85rem; cursor: pointer; display: block; margin: 18px auto 0 auto; text-align: center;">Não tem conta? Criar conta agora</button>
         </div>
     </div>
 
