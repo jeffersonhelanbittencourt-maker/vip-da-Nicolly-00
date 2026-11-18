@@ -1,4 +1,26 @@
-        <!-- Cabeçalho / Navbar -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIP da Nicolly</title>
+
+    <!-- Estilos com caminho absoluto/relativo seguro -->
+    <link rel="stylesheet" href="./css/variables.css">
+    <link rel="stylesheet" href="./css/layout.css">
+    <link rel="stylesheet" href="./css/components.css">
+    <link rel="stylesheet" href="./css/main.css">
+
+    <!-- Fontes do Google -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="app" class="app-container">
+        
+        <!-- Cabeçalho -->
         <header class="main-header">
             <div class="logo-container">
                 <h1>VIP da Nicolly</h1>
@@ -8,3 +30,58 @@
                 <button id="btn-login-modal" class="btn-primary">Painel Admin</button>
             </nav>
         </header>
+
+        <!-- Conteúdo da Página -->
+        <main class="content-body">
+            
+            <!-- Vitrine / Planos -->
+            <section id="vitrine-section" class="section-view">
+                <div class="hero-banner">
+                    <h2>Conteúdo Exclusivo & VIP</h2>
+                    <p>Assine agora e tenha acesso imediato ao nosso grupo fechado e materiais especiais.</p>
+                </div>
+
+                <div class="planos-grid" id="planos-container">
+                    <!-- Cards de planos gerados pelo JS -->
+                </div>
+
+                <div class="checkout-box" id="checkout-container" style="display: none;">
+                    <h3>Finalizar Assinatura</h3>
+                    <form id="form-checkout">
+                        <div class="form-group">
+                            <label for="cliente-email">Seu E-mail:</label>
+                            <input type="email" id="cliente-email" required placeholder="seu@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="cliente-nome">Seu Nome:</label>
+                            <input type="text" id="cliente-nome" required placeholder="Seu nome completo">
+                        </div>
+                        <button type="submit" class="btn-pix">Pagar com Pix</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Painel Administrativo -->
+            <section id="admin-section" class="section-view" style="display: none;">
+                <div class="admin-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Painel do Administrador Master</h2>
+                    <button id="btn-logout" class="btn-danger">Sair</button>
+                </div>
+                <div class="admin-stats" id="admin-stats-container" style="background: #111827; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                    <p>Bem-vindo ao painel de controle, Jefferson! O sistema está conectado ao banco de dados.</p>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Rodapé -->
+        <main-footer class="main-footer">
+            <p>&copy; 2026 VIP da Nicolly - Todos os direitos reservados.</p>
+        </main-footer>
+
+    </div>
+
+    <!-- Scripts seguros -->
+    <script type="module" src="./js/main.js"></script>
+</body>
+</html>
