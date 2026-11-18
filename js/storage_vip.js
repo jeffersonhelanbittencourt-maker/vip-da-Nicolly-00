@@ -1,11 +1,10 @@
 // =====================================================================
-// VIP DA NICOLLY - js/storage_vip.js (Storage, Galeria, Curtidas, Favoritos e Comentários)
+// VIP DA NICOLLY - js/storage_vip.js (Storage, Galeria, Curtidas e Favoritos)
 // =====================================================================
-
 import { supabase } from './config.js';
 
 export const SupabaseStorageVIP = {
-    // Fazer upload de foto ou vídeo direto para o Supabase Storage (100% Free)
+    // 1. Upload e publicação de conteúdos exclusivos
     async publicarConteudo(arquivo, titulo, descricao) {
         if (!arquivo) throw new Error('Selecione uma foto ou vídeo primeiro.');
 
@@ -37,7 +36,7 @@ export const SupabaseStorageVIP = {
         return urlData.publicUrl;
     },
 
-    // Curtir ou descurtir conteúdos na Área VIP
+    // 2. Sistema de Curtidas
     async curtirConteudo(conteudoId, emailUsuario) {
         if (!emailUsuario) return;
         const { data: jaCurtiu } = await supabase
@@ -54,7 +53,7 @@ export const SupabaseStorageVIP = {
         }
     },
 
-    // Adicionar ou remover dos favoritos
+    // 3. Sistema de Favoritos
     async alternarFavorito(conteudoId, emailUsuario) {
         if (!emailUsuario) return;
         const { data: jaFavorito } = await supabase
@@ -66,25 +65,14 @@ export const SupabaseStorageVIP = {
 
         if (jaFavorito) {
             await supabase.from('favoritos_vip').delete().eq('id', jaFavorito.id);
-            alert("Removido dos favoritos.");
+            alert("Removido dos favoritos com sucesso.");
         } else {
             await supabase.from('favoritos_vip').insert([{ usuario_email: emailUsuario.toLowerCase(), conteudo_id: conteudoId }]);
-            alert("Adicionado aos favoritos!");
+            alert("Adicionado aos favoritos com sucesso!");
         }
     },
 
-    // Enviar comentário
-    async enviarComentario(conteudoId, emailUsuario, texto) {
-        if (!emailUsuario || !texto) return;
-        const { error } = await supabase.from('comentarios_vip').insert([{
-            conteudo_id: conteudoId,
-            usuario_email: emailUsuario.toLowerCase(),
-            comentario: texto.trim()
-        }]);
-        if (error) alert("Erro ao enviar comentário.");
-    },
-
-    // Renderizar toda a Área VIP do Cliente com mídias, curtidas, favoritos e comentários
+    // 4. Renderização completa da Galeria VIP para os clientes
     async renderizarAreaCliente(containerId, emailUsuario = '') {
         const container = document.getElementById(containerId);
         if (!container) return;
@@ -96,7 +84,7 @@ export const SupabaseStorageVIP = {
             .order('criado_em', { ascending: false });
 
         if (error || !conteudos || conteudos.length === 0) {
-            container.innerHTML = '<p style="color: #9ca3af; text-align: center; padding: 20px;">Nenhum conteúdo publicado ainda. Volte em breve!</p>';
+            container.innerHTML = '<p style="color: #9ca3af; text-align: center; padding: 20px;">Nenhum conteúdo publicado na Área VIP ainda. Volte em breve!</p>';
             return;
         }
 
@@ -115,8 +103,8 @@ export const SupabaseStorageVIP = {
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <h3 style="color: #fff; font-size: 1.15rem;">${item.titulo}</h3>
                         <div style="display: flex; gap: 8px;">
-                            <button onclick="window.acaoFavorito('${item.id}')" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fbbf24; padding: 6px 12px; border-radius: 20px; cursor: pointer;">⭐ Favoritar</button>
-                            <button onclick="window.acaoCurtir('${item.id}')" style="background: rgba(236,72,153,0.15); border: 1px solid rgba(236,72,153,0.4); color: #f472b6; padding: 6px 14px; border-radius: 20px; cursor: pointer; font-weight: 600;">❤️ ${item.total_curtidas || 0}</button>
+                            <button onclick="window.acaoFavorito('${item.id}')" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fbbf24; padding: 6px 12px; border-radius: 20px; cursor: pointer;">⭐ Favorito</button>
+                            <button onclick="window.acaoCurtir('${item.id}')" style="background: rgba(236,72,153,0.15); border: 1px solid rgba(236,72,153,0.4); color: #f472b6; padding: 6px 14px; border-radius: 20px; cursor: pointer; font-weight: 600;">❤️ Curtir</button>
                         </div>
                     </div>
                     ${item.descricao ? `<p style="color: #9ca3af; font-size: 0.9rem; margin-top: 6px;">${item.descricao}</p>` : ''}
@@ -125,11 +113,10 @@ export const SupabaseStorageVIP = {
             `;
         }).join('');
 
-        // Funções globais de interação ligadas aos botões
         window.acaoCurtir = async (id) => {
             const { data: { session } } = await supabase.auth.getSession();
             const email = session?.user?.email || emailUsuario;
-            if (!email) return alert("Faça login para curtir.");
+            if (!email) return alert("Faça login para curtir os conteúdos.");
             await SupabaseStorageVIP.curtirConteudo(id, email);
             await SupabaseStorageVIP.renderizarAreaCliente(containerId, email);
         };
@@ -137,7 +124,7 @@ export const SupabaseStorageVIP = {
         window.acaoFavorito = async (id) => {
             const { data: { session } } = await supabase.auth.getSession();
             const email = session?.user?.email || emailUsuario;
-            if (!email) return alert("Faça login para favoritar.");
+            if (!email) return alert("Faça login para favoritar os conteúdos.");
             await SupabaseStorageVIP.alternarFavorito(id, email);
         };
     }
