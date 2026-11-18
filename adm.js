@@ -4,10 +4,9 @@
 const express = require('express');
 const router = express.Router();
 
-// Lista de usuários autorizados (Jefferson Administrador e Nicolly)
+// Lista de usuários autorizados (Apenas o seu e-mail e senha de 6 dígitos)
 const USUARIOS_ADM = [
-  { login: 'jefferson', senha: '0411', nome: 'Jefferson', admin: true },
-  { login: 'nicolly', senha: '0411', nome: 'Nicolly', admin: false }
+  { login: 'jeffersonhelanbittencourt@gmail.com', senha: '041160', nome: 'Jefferson', admin: true }
 ];
 
 // Rota de login do admin que conversa com o servidor
