@@ -1,12 +1,12 @@
 // =====================================================================
-// VIP DA NICOLLY - js/realtime.js (Realtime nativo)
+// VIP DA NICOLLY - js/realtime.js (Sincronização em Tempo Real)
 // =====================================================================
 import { supabase } from './config.js';
 
 export const SupabaseRealtime = {
     iniciar(callbackPlanos, callbackPagamentos) {
         supabase
-            .channel('tabelas-publicas-vip')
+            .channel('tabelas-publicas-vip-live')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'planos_vip' }, () => {
                 if (typeof callbackPlanos === 'function') callbackPlanos();
             })
