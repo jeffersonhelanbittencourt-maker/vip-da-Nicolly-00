@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VIP da Nicolly</title>
 
-    <!-- Estilos com caminho absoluto/relativo seguro -->
+    <!-- Estilos Fatiados -->
     <link rel="stylesheet" href="./css/variables.css">
     <link rel="stylesheet" href="./css/layout.css">
     <link rel="stylesheet" href="./css/components.css">
     <link rel="stylesheet" href="./css/main.css">
 
-    <!-- Fontes do Google -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -27,14 +27,14 @@
             </div>
             <nav class="user-nav">
                 <span id="user-status-badge" class="badge">Visitante</span>
-                <button id="btn-login-modal" class="btn-primary">Painel Admin</button>
+                <button id="btn-abrir-login" class="btn-primary">Entrar / Acessar</button>
             </nav>
         </header>
 
-        <!-- Conteúdo da Página -->
+        <!-- Conteúdo Principal -->
         <main class="content-body">
             
-            <!-- Vitrine / Planos -->
+            <!-- 1. Vitrine / Início / Planos -->
             <section id="vitrine-section" class="section-view">
                 <div class="hero-banner">
                     <h2>Conteúdo Exclusivo & VIP</h2>
@@ -42,46 +42,56 @@
                 </div>
 
                 <div class="planos-grid" id="planos-container">
-                    <!-- Cards de planos gerados pelo JS -->
-                </div>
-
-                <div class="checkout-box" id="checkout-container" style="display: none;">
-                    <h3>Finalizar Assinatura</h3>
-                    <form id="form-checkout">
-                        <div class="form-group">
-                            <label for="cliente-email">Seu E-mail:</label>
-                            <input type="email" id="cliente-email" required placeholder="seu@email.com">
-                        </div>
-                        <div class="form-group">
-                            <label for="cliente-nome">Seu Nome:</label>
-                            <input type="text" id="cliente-nome" required placeholder="Seu nome completo">
-                        </div>
-                        <button type="submit" class="btn-pix">Pagar com Pix</button>
-                    </form>
+                    <!-- Cards carregados via Supabase -->
                 </div>
             </section>
 
-            <!-- Painel Administrativo -->
+            <!-- 2. Área Exclusiva do Cliente (Aparece após login de cliente) -->
+            <section id="cliente-section" class="section-view" style="display: none;">
+                <div class="hero-banner" style="border-color: #10b981;">
+                    <h2 id="cliente-welcome-title">Bem-vindo à Área VIP!</h2>
+                    <p>Seu acesso está ativo. Aproveite todos os benefícios exclusivos da Nicolly.</p>
+                    <button id="btn-sair-cliente" class="btn-danger" style="margin-top: 20px;">Sair da Conta</button>
+                </div>
+            </section>
+
+            <!-- 3. Painel do Administrador Master (Aparece se for o Jefferson) -->
             <section id="admin-section" class="section-view" style="display: none;">
                 <div class="admin-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2>Painel do Administrador Master</h2>
-                    <button id="btn-logout" class="btn-danger">Sair</button>
+                    <button id="btn-logout-admin" class="btn-danger">Sair</button>
                 </div>
-                <div class="admin-stats" id="admin-stats-container" style="background: #111827; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-                    <p>Bem-vindo ao painel de controle, Jefferson! O sistema está conectado ao banco de dados.</p>
+                <div class="admin-stats" id="admin-stats-container" style="background: #111827; padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                    <h3>Controle Geral via Supabase</h3>
+                    <p style="color: #9ca3af; margin-top: 10px;">Banco de dados conectado e pronto para gerenciar clientes e faturamento.</p>
                 </div>
             </section>
 
         </main>
 
+        <!-- Modal de Login Unificado -->
+        <div id="modal-login" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+            <div style="background: #111827; padding: 30px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); width: 100%; max-width: 400px; position: relative;">
+                <h3 style="margin-bottom: 20px; color: #fff;">Acessar Plataforma</h3>
+                <form id="form-login-unico">
+                    <div class="form-group">
+                        <label for="login-email">Seu E-mail cadastrado:</label>
+                        <input type="email5" id="login-email" required placeholder="seu@email.com" style="width: 100%; padding: 12px; background: #1f2937; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; margin-top: 5px;">
+                    </div>
+                    <button type="submit" class="btn-primary" style="width: 100%; margin-top: 15px;">Entrar na Conta</button>
+                    <button type="button" id="btn-fechar-modal" style="width: 100%; background: transparent; border: none; color: #9ca3af; margin-top: 10px; cursor: pointer;">Cancelar</button>
+                </form>
+            </div>
+        </div>
+
         <!-- Rodapé -->
-        <main-footer class="main-footer">
+        <footer class="main-footer">
             <p>&copy; 2026 VIP da Nicolly - Todos os direitos reservados.</p>
-        </main-footer>
+        </footer>
 
     </div>
 
-    <!-- Scripts seguros -->
+    <!-- Script Principal Modular do Supabase -->
     <script type="module" src="./js/main.js"></script>
 </body>
 </html>
