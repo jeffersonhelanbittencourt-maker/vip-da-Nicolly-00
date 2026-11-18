@@ -2,7 +2,6 @@
 // VIP DA NICOLLY - js/main.js (Controlador Principal Mestre e Unificado)
 // =====================================================================
 import { supabase, ADMIN_EMAIL_MASTER } from './config.js';
-import { SupabaseAI } from './ai_assistant.js';
 import { SupabaseRealtime } from './realtime.js';
 import { SupabaseStorageVIP } from './storage_vip.js';
 import { MercadoPagoVIP } from './pagamentos.js';
@@ -19,6 +18,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const modalLogin = document.getElementById("modal-login");
     const btnFecharModal = document.getElementById("btn-fechar-modal");
     const btnAlternarModo = document.getElementById("btn-alternar-modo-auth");
+    const btnEsqueciSenha = document.getElementById("btn-esqueci-senha");
     const formLoginUnico = document.getElementById("form-login-unico");
 
     const vitrineSection = document.getElementById("vitrine-section");
@@ -27,19 +27,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     const badge = document.getElementById("user-status-badge");
 
     // =====================================================================
-    // 1. GERENCIADOR DE SESSÃO E ROTAS INTELIGENTES
+    // 1. GERENCIADOR DE SESSÃO E ROTAS INTELIGENTES (SUPABASE)
     // =====================================================================
     async function aplicarSessaoUsuario(user) {
         if (!user || !user.email) return;
         const email = user.email.toLowerCase();
 
+        // Consulta a tabela admins_vip no Supabase para verificar permissão de admin
         const { data: adminData } = await supabase
             .from('admins_vip')
             .select('*')
             .eq('email', email)
             .maybeSingle();
 
-        // A. Painel Admin Master
+        // A. Painel Admin Master (Direto se for master ou admin cadastrado)
         if (email === ADMIN_EMAIL_MASTER.toLowerCase() || (adminData && adminData.ativo)) {
             if (vitrineSection) vitrineSection.style.display = "none";
             if (clienteSection) clienteSection.style.display = "none";
@@ -55,7 +56,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
 
-        // B. Área do Cliente VIP (Inclui Galeria, Notificações e Painel de Afiliado)
+        // B. Área do Cliente VIP
         if (vitrineSection) vitrineSection.style.display = "none";
         if (adminSection) adminSection.style.display = "none";
         if (clienteSection) clienteSection.style.display = "block";
@@ -137,7 +138,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // =====================================================================
-    // 4. AUTENTICAÇÃO E EVENTOS DE MODAL
+    // 4. AUTENTICAÇÃO, CADASTRO, TELEFONE E RECUPERAÇÃO DE SENHA
     // =====================================================================
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) await aplicarSessaoUsuario(session.user);
@@ -149,27 +150,67 @@ document.addEventListener("DOMContentLoaded", async () => {
         btnFecharModal.addEventListener("click", () => modalLogin.style.display = "none");
     }
 
+    // Alternar entre Login e Cadastro (exibe campo de WhatsApp/Celular)
     if (btnAlternarModo) {
         btnAlternarModo.addEventListener("click", () => {
             modoCadastro = !modoCadastro;
+            const grupoTelefone = document.getElementById("grupo-telefone");
+            
             document.getElementById("modal-auth-titulo").textContent = modoCadastro ? "Criar Conta VIP" : "Acessar Plataforma";
             document.getElementById("btn-submit-auth").textContent = modoCadastro ? "Cadastrar e Entrar" : "Entrar na Conta";
-            btnAlternarModo.textContent = modoCadastro ? "Já tem conta? Fazer login" : "Não tem conta? Criar conta agora";
+            btnAlternarModo.textContent = modoCadastro ? "Já tem conta? Fazer login" : "Criar conta agora";
+            
+            if (grupoTelefone) {
+                grupoTelefone.style.display = modoCadastro ? "block" : "none";
+                const inputTel = document.getElementById("login-telefone");
+                if (inputTel) inputTel.required = modoCadastro;
+            }
         });
     }
 
+    // Recuperação de senha nativa do Supabase ("Esqueci a senha")
+    if (btnEsqueciSenha) {
+        btnEsqueciSenha.addEventListener("click", async () => {
+            const emailInput = document.getElementById("login-email").value.trim().toLowerCase();
+            if (!emailInput) {
+                alert("Por favor, digite seu e-mail no campo acima antes de clicar em 'Esqueci a senha'.");
+                return;
+            }
+            const { error } = await supabase.auth.resetPasswordForEmail(emailInput, {
+                redirectTo: window.location.href,
+            });
+            if (error) {
+                alert("Erro ao enviar e-mail de recuperação: " + error.message);
+            } else {
+                alert("✅ E-mail de recuperação de senha enviado com sucesso! Verifique sua caixa de entrada.");
+            }
+        });
+    }
+
+    // Envio do formulário de autenticação (Login ou Cadastro com Telefone)
     if (formLoginUnico) {
         formLoginUnico.addEventListener("submit", async (e) => {
             e.preventDefault();
             const email = document.getElementById("login-email").value.trim().toLowerCase();
             const password = document.getElementById("login-senha").value;
+            const telefone = document.getElementById("login-telefone")?.value.trim() || '';
 
             if (modoCadastro) {
-                const { data, error } = await supabase.auth.signUp({ email, password });
+                const { data, error } = await supabase.auth.signUp({ 
+                    email, 
+                    password,
+                    options: { data: { telefone: telefone } }
+                });
                 if (error) return alert("Erro ao criar conta: " + error.message);
-                await supabase.from('clientes_vip').upsert({ email, status: 'aprovado' }, { onConflict: 'email' });
+
+                await supabase.from('clientes_vip').upsert({ 
+                    email: email, 
+                    telefone: telefone,
+                    status: 'aprovado' 
+                }, { onConflict: 'email' });
+
                 if (modalLogin) modalLogin.style.display = "none";
-                alert("Conta criada com sucesso!");
+                alert("✅ Conta criada com sucesso!");
                 if (data.user) await aplicarSessaoUsuario(data.user);
             } else {
                 const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -223,7 +264,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (btnAbrirLogin) btnAbrirLogin.style.display = "inline-block";
         if (badge) {
             badge.textContent = "Visitante";
-            badge.style.background = "rgba(255, 255, 255, 0.1)";
+            badge.style.background = "rgba(255, 255, 255, 0.08)";
             badge.style.color = "#9ca3af";
         }
     };
@@ -234,10 +275,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (btnSairCliente) btnSairCliente.addEventListener("click", sairGeral);
 
     // =====================================================================
-    // 7. INICIALIZAÇÃO DE MÓDULOS GLOBAIS (Realtime, IA e Vitrine)
+    // 7. INICIALIZAÇÃO DE MÓDULOS GLOBAIS (Realtime e Vitrine)
     // =====================================================================
     carregarPlanosDoSupabase();
-    SupabaseAI.iniciarChatUI();
     SupabaseRealtime.iniciar(
         () => carregarPlanosDoSupabase(),
         (pagamento) => {
@@ -260,20 +300,19 @@ async function carregarPlanosDoSupabase() {
     if (!planos) return;
 
     container.innerHTML = planos.map(plano => `
-        <div class="plano-card" style="background: #111827; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 15px;">
+        <div class="plano-card">
             <div>
                 <h3 style="color: #fff; font-size: 1.25rem;">${plano.nome}</h3>
                 <p style="color: #9ca3af; margin: 10px 0; font-size: 0.9rem;">${plano.descricao || ''}</p>
                 <p id="preco-plano-${plano.id}" style="font-size: 1.6rem; font-weight: 700; color: #ec4899; margin: 15px 0;">R$ ${Number(plano.valor).toFixed(2)}</p>
             </div>
             
-            <!-- Campo de Cupom de Desconto -->
             <div style="margin: 12px 0; display: flex; gap: 8px;">
-                <input type="text" id="input-cupom-${plano.id}" placeholder="Cupom (ex: VIP10)" style="background: #1f2937; border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 8px; border-radius: 6px; font-size: 0.85rem; flex: 1; text-transform: uppercase;">
+                <input type="text" id="input-cupom-${plano.id}" placeholder="Cupom (ex: VIP10)" style="text-transform: uppercase;">
                 <button type="button" id="btn-aplicar-cupom-${plano.id}" style="background: #374151; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">Aplicar</button>
             </div>
 
-            <button class="btn-primary" id="btn-plano-${plano.id}" style="width: 100%; margin-top: 10px;">Assinar com Pix</button>
+            <button class="btn-primary" id="btn-plano-${plano.id}" style="margin-top: 10px;">Assinar com Pix</button>
         </div>
     `).join('');
 
