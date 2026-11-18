@@ -1,0 +1,439 @@
+/* =============================================================================
+ * VIP DA NICOLLY - style.css
+ * Paleta: preto absoluto #030305 + rosa choque #ec4899 / rose-500 + roxo de apoio
+ * ========================================================================== */
+
+/* 1. VARIÁVEIS E HIERARQUIA DE CAMADAS (z-index) */
+:root {
+  --bg: #030305;
+  --bg-card: rgba(20, 20, 24, 0.62);
+  --bg-card-solido: #141418;
+  --borda-rosa: rgba(236, 72, 153, 0.28);
+  --rosa: #ec4899;
+  --rosa-forte: #db2777;
+  --rose: #f43f5e;
+  --roxo: #a855f7;
+  --texto: #f5f5f7;
+  --texto-suave: #a1a1aa;
+  --verde: #22c55e;
+  --ambar: #f59e0b;
+  --vermelho: #ef4444;
+
+  --z-fundo: 0;
+  --z-conteudo: 10;
+  --z-topo: 50;
+  --z-modal: 100;
+  --z-modal-pix: 110;
+  --z-modal-confirmar: 120;
+  --z-modal-idade: 130;
+  --z-modal-aviso: 140;
+  --z-toast: 200;
+}
+
+/* 2. BASE */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+html, body {
+  margin: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  color: var(--texto);
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(60rem 30rem at 50% -10%, rgba(236, 72, 153, 0.18), transparent 70%),
+    radial-gradient(40rem 24rem at 100% 40%, rgba(168, 85, 247, 0.10), transparent 70%);
+  background-attachment: fixed;
+  line-height: 1.55;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+body.modal-aberto { overflow: hidden; }
+
+[hidden] { display: none !important; }
+
+h1, h2, h3 { line-height: 1.15; letter-spacing: -0.02em; margin: 0; }
+
+a { color: var(--rosa); }
+
+:focus-visible {
+  outline: 2px solid var(--rosa);
+  outline-offset: 2px;
+}
+
+/* 3. TRAVAS ANTI-CÓPIA / ANTI-PRINT */
+body {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+input, textarea {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+img { -webkit-user-drag: none; user-drag: none; pointer-events: none; }
+
+@media print {
+  html, body { display: none !important; }
+}
+
+/* 4. GLASSMORPHISM (com fallback para navegadores sem backdrop-filter) */
+.glass {
+  background: rgba(20, 20, 24, 0.92);
+  border: 1px solid var(--borda-rosa);
+  border-radius: 1.25rem;
+}
+
+@supports ((-webkit-backdrop-filter: blur(20px)) or (backdrop-filter: blur(20px))) {
+  .glass {
+    background: var(--bg-card);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+  }
+}
+
+.glass-barra {
+  background: rgba(3, 3, 5, 0.94);
+  border-bottom: 1px solid var(--borda-rosa);
+}
+
+@supports ((-webkit-backdrop-filter: blur(20px)) or (backdrop-filter: blur(20px))) {
+  .glass-barra {
+    background: rgba(3, 3, 5, 0.6);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+  }
+}
+
+/* 5. EFEITOS NEON E TEXTO GRADIENTE */
+.glow-pink {
+  box-shadow: 0 0 0 1px rgba(236, 72, 153, 0.55), 0 0 28px rgba(236, 72, 153, 0.45), 0 0 80px rgba(236, 72, 153, 0.18);
+}
+
+.glow-pink-suave {
+  box-shadow: 0 0 22px rgba(236, 72, 153, 0.28);
+}
+
+.texto-gradiente {
+  background: linear-gradient(90deg, #f472b6 0%, #ec4899 45%, #a855f7 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #ec4899;
+}
+
+/* 6. LAYOUT */
+.topo {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-topo);
+  padding-top: env(safe-area-inset-top);
+}
+
+.conteudo { position: relative; z-index: var(--z-conteudo); }
+
+.container-vip {
+  width: 100%;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.nav-vip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .nav-vip { justify-content: flex-end; }
+}
+
+.grade-planos {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .grade-planos { grid-template-columns: repeat(3, 1fr); align-items: stretch; }
+}
+
+.plano-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
+.plano-destaque {
+  border-color: var(--rosa);
+  box-shadow: 0 0 0 1px rgba(236, 72, 153, 0.7), 0 0 34px rgba(236, 72, 153, 0.5), 0 0 90px rgba(236, 72, 153, 0.2);
+}
+
+@media (min-width: 768px) {
+  .plano-destaque { transform: translateY(-0.5rem); }
+}
+
+.selo-popular {
+  position: absolute;
+  top: -0.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.25rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  white-space: nowrap;
+  color: #fff;
+  background: linear-gradient(90deg, var(--rosa-forte), var(--roxo));
+}
+
+.preco { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.03em; }
+
+/* 7. BOTÕES (alvos de toque confortáveis: mínimo 48px) */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 48px;
+  padding: 0.75rem 1.25rem;
+  border: 1px solid transparent;
+  border-radius: 0.85rem;
+  font: inherit;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  text-align: center;
+  touch-action: manipulation;
+  transition: all 250ms ease-in-out;
+}
+
+.btn:disabled, .btn[aria-disabled='true'] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-bloco { width: 100%; }
+
+.btn-primario {
+  background: linear-gradient(90deg, var(--rosa-forte), var(--rosa));
+  box-shadow: 0 0 20px rgba(236, 72, 153, 0.35);
+}
+.btn-primario:hover:not(:disabled) { box-shadow: 0 0 32px rgba(236, 72, 153, 0.65); filter: brightness(1.08); }
+
+.btn-secundario {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--borda-rosa);
+}
+.btn-secundario:hover:not(:disabled) { background: rgba(236, 72, 153, 0.14); border-color: var(--rosa); }
+
+.btn-verde { background: #16a34a; }
+.btn-verde:hover:not(:disabled) { background: #22c55e; box-shadow: 0 0 20px rgba(34, 197, 94, 0.45); }
+
+.btn-ambar { background: #d97706; }
+.btn-ambar:hover:not(:disabled) { background: #f59e0b; box-shadow: 0 0 20px rgba(245, 158, 11, 0.45); }
+
+.btn-perigo { background: #dc2626; }
+.btn-perigo:hover:not(:disabled) { background: #ef4444; }
+
+.btn-pequeno { min-height: 40px; padding: 0.4rem 0.85rem; font-size: 0.85rem; border-radius: 0.65rem; }
+
+.btn-fechar {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  color: var(--texto-suave);
+  cursor: pointer;
+  transition: all 250ms ease-in-out;
+}
+.btn-fechar:hover { color: #fff; background: rgba(236, 72, 153, 0.18); }
+
+/* 8. FORMULÁRIOS */
+.campo {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.7rem 0.95rem;
+  font: inherit;
+  color: var(--texto);
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 0.85rem;
+  transition: all 250ms ease-in-out;
+}
+
+.campo::placeholder { color: #71717a; }
+.campo:focus { outline: none; border-color: var(--rosa); box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.25); }
+
+.campo-erro {
+  border-color: var(--vermelho) !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3) !important;
+}
+
+.rotulo { display: block; margin-bottom: 0.35rem; font-size: 0.85rem; font-weight: 600; color: var(--texto-suave); }
+
+.abas { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; padding: 0.3rem; border-radius: 0.95rem; background: rgba(0, 0, 0, 0.4); }
+.aba { min-height: 44px; border: 0; border-radius: 0.7rem; background: transparent; color: var(--texto-suave); font: inherit; font-weight: 700; cursor: pointer; transition: all 250ms ease-in-out; }
+.aba[aria-selected='true'] { color: #fff; background: linear-gradient(90deg, var(--rosa-forte), var(--rosa)); }
+
+/* 9. CAIXAS DE MENSAGEM (sucesso verde, erro vermelho, aviso âmbar) */
+.msg {
+  padding: 0.75rem 0.95rem;
+  border-radius: 0.85rem;
+  border: 1px solid;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.msg-ok { color: #bbf7d0; background: rgba(34, 197, 94, 0.1); border-color: var(--verde); }
+.msg-erro { color: #fecaca; background: rgba(239, 68, 68, 0.1); border-color: var(--vermelho); }
+.msg-aviso { color: #fde68a; background: rgba(245, 158, 11, 0.1); border-color: var(--ambar); }
+
+/* 10. SELOS DE STATUS */
+.selo { display: inline-block; padding: 0.2rem 0.75rem; border-radius: 999px; font-size: 0.8rem; font-weight: 800; border: 1px solid; }
+.selo-aprovado { color: #86efac; border-color: var(--verde); background: rgba(34, 197, 94, 0.12); }
+.selo-pendente { color: #fcd34d; border-color: var(--ambar); background: rgba(245, 158, 11, 0.12); }
+.selo-suspenso { color: #fca5a5; border-color: var(--vermelho); background: rgba(239, 68, 68, 0.12); }
+
+/* 11. TABELA ADMIN */
+.tabela-vip { width: 100%; min-width: 40rem; border-collapse: collapse; font-size: 0.9rem; }
+.tabela-vip th { text-align: left; padding: 0.75rem; color: var(--texto-suave); font-weight: 700; border-bottom: 1px solid var(--borda-rosa); }
+.tabela-vip td { padding: 0.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.07); vertical-align: middle; }
+.tabela-vip td.celula-email { word-break: break-all; }
+.tabela-vip tr.linha-vazia td { text-align: center; color: var(--texto-suave); padding: 2rem 0.75rem; }
+.acoes-linha { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+/* 12. MODAIS (todos centralizados, sem overflow horizontal) */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(1rem, env(safe-area-inset-top)) 1rem max(1rem, env(safe-area-inset-bottom));
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: rgba(0, 0, 0, 0.78);
+}
+
+@supports ((-webkit-backdrop-filter: blur(6px)) or (backdrop-filter: blur(6px))) {
+  .modal {
+    background: rgba(0, 0, 0, 0.6);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+}
+
+#modalAuth, #modalSenha { z-index: var(--z-modal); }
+#modalPix { z-index: var(--z-modal-pix); }
+#modalConfirmar { z-index: var(--z-modal-confirmar); }
+#modalIdade { z-index: var(--z-modal-idade); background: rgba(0, 0, 0, 0.96); }
+#modalAviso { z-index: var(--z-modal-aviso); }
+
+.modal-card {
+  position: relative;
+  width: 100%;
+  max-width: 28rem;
+  max-height: 92vh;
+  max-height: 92dvh;
+  margin: auto;
+  padding: 2rem 1.25rem 1.5rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--bg-card-solido);
+  border: 1px solid var(--borda-rosa);
+  border-radius: 1.25rem;
+  box-shadow: 0 0 40px rgba(236, 72, 153, 0.25);
+}
+
+@media (min-width: 480px) {
+  .modal-card { padding: 2rem 1.75rem 1.75rem; }
+}
+
+/* Impede a piscada do modal 18+ quando a maioridade já foi confirmada */
+html.maior #modalIdade { display: none !important; }
+body.bloqueado .topo, body.bloqueado main, body.bloqueado footer { display: none !important; }
+
+/* QR Code do Pix */
+.qr-moldura { display: flex; justify-content: center; padding: 0.75rem; background: #fff; border-radius: 1rem; width: fit-content; margin: 0 auto; }
+.qr-moldura img { width: min(60vw, 14rem); height: auto; display: block; }
+
+.pix-codigo { font-size: 0.8rem; text-overflow: ellipsis; }
+
+.carregando-ponto { display: inline-block; width: 2.5rem; height: 2.5rem; border: 3px solid rgba(236, 72, 153, 0.25); border-top-color: var(--rosa); border-radius: 50%; animation: girar 0.9s linear infinite; }
+@keyframes girar { to { transform: rotate(360deg); } }
+
+/* 13. TOASTS */
+#toastContainer {
+  position: fixed;
+  top: max(0.75rem, env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-toast);
+  width: min(92vw, 26rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.toast {
+  padding: 0.8rem 1rem;
+  border-radius: 0.9rem;
+  border: 1px solid var(--rosa);
+  background: rgba(10, 10, 14, 0.96);
+  color: var(--texto);
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 0 22px rgba(236, 72, 153, 0.4);
+  animation: toast-entrada 300ms ease-out;
+}
+.toast-erro { border-color: var(--vermelho); box-shadow: 0 0 22px rgba(239, 68, 68, 0.4); }
+.toast-aviso { border-color: var(--ambar); box-shadow: 0 0 22px rgba(245, 158, 11, 0.35); }
+@keyframes toast-entrada { from { opacity: 0; transform: translateY(-0.75rem); } to { opacity: 1; transform: translateY(0); } }
+
+/* 14. AVISO DE FALHA DE CDN */
+.aviso-cdn { padding: 0.6rem 1rem; text-align: center; font-size: 0.85rem; font-weight: 600; color: #fde68a; background: rgba(245, 158, 11, 0.15); border-bottom: 1px solid var(--ambar); }
+
+/* 15. ACESSIBILIDADE: reduzir movimento */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
+/* 16. PARTE 2: cupom, métricas e filtros do painel */
+.preco-riscado { font-size: 1.1rem; font-weight: 700; color: var(--texto-suave); text-decoration: line-through; text-decoration-color: var(--rosa); margin: 0; }
+.cards-metricas { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+@media (min-width: 768px) { .cards-metricas { grid-template-columns: repeat(4, 1fr); } }
+.card-metrica { padding: 1rem; }
+.card-metrica .rotulo { margin-bottom: 0.15rem; }
+.valor-metrica { margin: 0; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; word-break: break-word; }
+select.campo { appearance: auto; }
