@@ -3,6 +3,7 @@
 // =====================================================================
 
 import { supabase, ADMIN_EMAIL_MASTER } from './config.js';
+import { SupabaseAI } from './ai_assistant.js';
 
 document.addEventListener("DOMContentLoaded", async () => {
     console.log("VIP da Nicolly conectado ao Supabase!");
@@ -99,6 +100,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     const btnSairCliente = document.getElementById("btn-sair-cliente");
     if (btnLogoutAdmin) btnLogoutAdmin.addEventListener("click", sairGeral);
     if (btnSairCliente) btnSairCliente.addEventListener("click", sairGeral);
+
+    // Ativação do botão da IA Assistente Supabase
+    const btnIa = document.getElementById("btn-ia-assistente");
+    if (btnIa) {
+        btnIa.addEventListener("click", async () => {
+            const isAdmin = document.getElementById("admin-section")?.style.display === "block";
+            const pergunta = prompt(
+                isAdmin 
+                ? "🤖 IA Admin Supabase:\nDigite 'status' para verificar se o projeto está tudo certo, ou pergunte sobre 'vendas':" 
+                : "🤖 Assistente VIP:\nPergunte sobre 'planos', 'valores' ou 'pix':"
+            );
+            
+            if (pergunta) {
+                const resposta = await SupabaseAI.responderPergunta(pergunta, isAdmin);
+                alert(resposta);
+            }
+        });
+    }
 });
 
 // Função para buscar planos cadastrados no Supabase
